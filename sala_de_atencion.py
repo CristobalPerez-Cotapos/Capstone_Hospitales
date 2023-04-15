@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 
 class SalaDeAtencion(ABC):
 
-    def __init__(self, hospital:str, costo:int, tiempos_espera:dict, capacidad:int):
+    def __init__(self, hospital:str, costo:dict, tiempo_espera:dict, capacidad:int):
         super().__init__()
         self.pacientes_en_atencion = {i: [] for i in range(1, 9)}
         self.pacientes_atendidos = {i: [] for i in range(1 ,9)} # pacientes que ya fueron atendidos y siguen en la sala de atencion
         self.costo = costo
-        self.tiempos_espera = tiempos_espera  # {grupo_diagnostico: tiempo_espera}
+        self.tiempos_espera = tiempo_espera  # {grupo_diagnostico: tiempo_espera}
         self.capacidad = capacidad
         self.cantidad_de_pacientes_por_grupo_en_atencion = {i: 0 for i in range(1, 9)}
         self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
@@ -25,7 +25,7 @@ class SalaDeAtencion(ABC):
         self.total_de_pacientes += 1
 
 
-    def simular_modulo(self):
+    def simular_jornada(self):
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
                 paciente.tiempo_atencion_unidad_actual += 1
@@ -44,23 +44,30 @@ class SalaDeAtencion(ABC):
 
 
 
-class Operatoria(SalaDeAtencion):
-    def __init__(self):
-        super().__init__()
+class Operatorio(SalaDeAtencion):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
-        return f"Operatoria: {len(self.pacientes)} pacientes en espera"
+        return f"Operatoria: {self.total_de_pacientes} pacientes en espera, {len(self.pacientes_atendidos)} pacientes atendidos"
     
 class CuidadosIntensivos(SalaDeAtencion):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
-        return f"Cuidados Intensivos: {len(self.pacientes)} pacientes en espera"
+        return f"Cuidados Intensivos: {self.total_de_pacientes} pacientes en espera, {len(self.pacientes_atendidos)} pacientes atendidos"
     
 class CuidadosIntermedios(SalaDeAtencion):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
-        return f"Cuidados Intermedios: {len(self.pacientes)} pacientes en espera"
+        return f"Cuidados Intermedios: {self.total_de_pacientes} pacientes en espera, {len(self.pacientes_atendidos)} pacientes atendidos"
+    
+class Admision(SalaDeAtencion):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return f"Admision: {self.total_de_pacientes} pacientes en espera, {len(self.pacientes_atendidos)} pacientes atendidos"
