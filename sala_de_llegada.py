@@ -48,21 +48,42 @@ class ListaDeEspera(SalaDeLLegada):
 
 class Urgencias(SalaDeLLegada):
 
-    def __init__(self, hospital:str, costo, capacidad, tiempo_espera):
+    def __init__(self, hospital:str, costo, capacidad, tiempo_espera, codigo="ED"):
         super().__init__()
         self.hospital = hospital
         self.costo = costo
         self.capacidad = capacidad
         self.tiempo_de_espera = tiempo_espera
+        self.codigo = codigo
 
-
+    @property
+    def camas_disponibles(self):
+        return self.capacidad - self.total_de_pacientes
+    
+    def pacientes_listos_para_trasladar(self, destino):
+        pacientes_listos = []
+        for paciente in self.pacientes:
+            if paciente.ruta_paciente[0] == destino:
+                pacientes_listos.append(paciente)
+        return pacientes_listos
+    
     def llegada_de_pacientes(self):
         for grupo_diagnostico in ph.TASA_LLEGADA_HOSPITAL[self.hospital]:
             cantidad_de_llegadas = random.poisson(ph.TASA_LLEGADA_HOSPITAL[self.hospital][grupo_diagnostico])
             self.total_de_pacientes += cantidad_de_llegadas
             self.cantidad_de_pacientes_por_grupo[grupo_diagnostico] += cantidad_de_llegadas
             for i in range(cantidad_de_llegadas):
-                self.pacientes.append(Paciente(grupo_diagnostico))
+                paciente = Paciente(grupo_diagnostico)
+                if paciente.ruta_paciente[0] == self.codigo:
+                    paciente.ruta_paciente.pop(0)
+                else:
+                    raise ValueError(f"El paciente con grupo {grupo_diagnostico} no llega a esta sala de llegada")
+                self.pacientes.append(paciente)
+
+    def retirar_paciente(self, paciente):
+        self.pacientes.remove(paciente)
+        self.total_de_pacientes -= 1
+        self.cantidad_de_pacientes_por_grupo[paciente.grupo_diagnostico] -= 1
 
     def __str__(self):
         text = f"Urgencias Hospital {self.hospital[-1]}, total de pacientes: {self.total_de_pacientes} \n"
