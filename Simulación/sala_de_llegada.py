@@ -65,6 +65,7 @@ class ListaDeEspera(SalaDeLLegada):
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)
         self.total_de_pacientes_para_ingresar -= 1
+        self.cantidad_de_pacientes_por_grupo_atendidos[paciente.grupo_diagnostico] -= 1
 
     def llegada_de_pacientes(self):
         for grupo_diagnostico in ph.TASA_LLEGADA_HOSPITAL["WL"]:
@@ -80,6 +81,11 @@ class ListaDeEspera(SalaDeLLegada):
                 self.total_de_pacientes_en_espera += 1
                 self.pacientes.append(paciente)
 
+    def recopilar_informacion(self):
+        return {"WL":(self.cantidad_de_pacientes_por_grupo_en_atencion,
+                self.cantidad_de_pacientes_por_grupo_atendidos,
+                0)}
+
     def __str__(self):
         text = "Lista de espera \n"
         text += super().__str__()
@@ -94,6 +100,8 @@ class Urgencias(SalaDeLLegada):
         self.capacidad = capacidad
         self.tiempo_de_espera = tiempo_espera
         self.codigo = codigo
+        self.cantidad_de_pacientes_por_grupo_en_atencion = {i: 0 for i in range(1, 9)}
+        self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
 
     @property
     def camas_disponibles(self):
@@ -110,7 +118,7 @@ class Urgencias(SalaDeLLegada):
         for grupo_diagnostico in ph.TASA_LLEGADA_HOSPITAL[self.hospital]:
             cantidad_de_llegadas = random.poisson(ph.TASA_LLEGADA_HOSPITAL[self.hospital][grupo_diagnostico])
             self.total_de_pacientes += cantidad_de_llegadas
-            self.cantidad_de_pacientes_por_grupo[grupo_diagnostico] += cantidad_de_llegadas
+            self.cantidad_de_pacientes_por_grupo_atendidos[grupo_diagnostico] += cantidad_de_llegadas
             for i in range(cantidad_de_llegadas):
                 paciente = Paciente(grupo_diagnostico)
                 if paciente.ruta_paciente[0] == self.codigo:
@@ -122,7 +130,7 @@ class Urgencias(SalaDeLLegada):
     def retirar_paciente(self, paciente):
         self.pacientes.remove(paciente)
         self.total_de_pacientes -= 1
-        self.cantidad_de_pacientes_por_grupo[paciente.grupo_diagnostico] -= 1
+        self.cantidad_de_pacientes_por_grupo_atendidos[paciente.grupo_diagnostico] -= 1
 
     def calcular_costos_jornada(self):
         # Como la atención en urgencias es inmediata, todo el costo por espera es inutil
@@ -132,6 +140,11 @@ class Urgencias(SalaDeLLegada):
             costos_muertos += self.costo[i.grupo_diagnostico]
         costos_totales += costos_muertos
         return costos_totales, costos_muertos 
+    
+    def recopilar_informacion(self):
+        return (self.cantidad_de_pacientes_por_grupo_en_atencion,
+               self.cantidad_de_pacientes_por_grupo_atendidos,
+               self.camas_disponibles)
 
     def __str__(self):
         text = f"Urgencias Hospital {self.hospital[-1]}, total de pacientes: {self.total_de_pacientes} \n"

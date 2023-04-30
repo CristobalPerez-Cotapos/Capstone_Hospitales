@@ -66,12 +66,12 @@ class SalaDeAtencion(ABC):
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)
         self.total_de_pacientes_atendidos -= 1
+        self.cantidad_de_pacientes_por_grupo_atendidos[paciente.grupo_diagnostico] -= 1
 
-
-
-
-
-
+    def recopilar_informacion(self):
+        return (self.cantidad_de_pacientes_por_grupo_en_atencion,
+                self.cantidad_de_pacientes_por_grupo_atendidos,
+                self.camas_disponibles)
 
 
 

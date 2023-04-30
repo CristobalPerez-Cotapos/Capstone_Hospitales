@@ -43,5 +43,13 @@ class Simulacion:
         for hospital in self.hospitales:
             print(hospital)
 
+    def recopilar_informacion(self):
+        informacion = {}
+        for hospital in self.hospitales:
+            informacion[hospital.nombre] = hospital.recopilar_informacion()
+        informacion["WL"] = self.lista_de_espera.recopilar_informacion()
+        return informacion
+            
+
     def aplicar_estrategia(self):
         pass

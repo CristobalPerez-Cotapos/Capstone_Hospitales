@@ -78,6 +78,12 @@ class Hospital:
             self.costos_total += costo_total
             self.costos_muertos += costo_muerto
 
+    def recopilar_informacion(self):
+        datos = {}
+        for unidad in self.lista_de_unidades:
+            datos[unidad.codigo] = unidad.recopilar_informacion()
+        return datos
+
 
 
     def __str__(self):
