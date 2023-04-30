@@ -1,5 +1,8 @@
-from random import uniform, randint
+from random import uniform, randint, seed
 from parametros_hospitales import PROBABILIDADES_DE_TRANSICION
+import parametros_simulacion as ps
+
+seed(ps.SEED)
 
 class Paciente():
 
@@ -17,7 +20,7 @@ class Paciente():
 
     def definir_ruta_paciente(self):
         if self.grupo_diagnostico >= 5:
-            self.ruta_paciente = ["GA"]
+            self.ruta_paciente = ["WL", "GA"]
         else:
             self.ruta_paciente = ["ED"]
         while self.ruta_paciente[-1] != "FIN":

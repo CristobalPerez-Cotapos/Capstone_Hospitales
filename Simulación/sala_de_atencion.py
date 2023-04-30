@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+import parametros_simulacion as ps
+import random 
+random.seed(ps.SEED)
 
 class SalaDeAtencion(ABC):
 
@@ -48,12 +51,27 @@ class SalaDeAtencion(ABC):
             if i.ruta_paciente[0] == unidad:
                 pacientes_listos.append(i)
         return pacientes_listos
-                
+    
+    def calcular_costos_jornada(self):
+        costos_totales = 0
+        costos_muertos = 0
+        for i in self.pacientes_atendidos:
+            costos_muertos += self.costo[i.grupo_diagnostico]
+        costos_totales += costos_muertos
+        for grupo in self.pacientes_en_atencion:
+            for paciente in self.pacientes_en_atencion[grupo]:
+                costos_totales += self.costo[paciente.grupo_diagnostico]
+        return costos_totales, costos_muertos    
 
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)
         self.total_de_pacientes_atendidos -= 1
-        
+
+
+
+
+
+
 
 
 
@@ -63,7 +81,7 @@ class Operatorio(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Operatoria: {self.total_de_pacientes} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Operatoria: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
     
 class CuidadosIntensivos(SalaDeAtencion):
     def __init__(self, codigo="ICU",*args, **kwargs):
@@ -71,7 +89,7 @@ class CuidadosIntensivos(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Cuidados Intensivos: {self.total_de_pacientes} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Cuidados Intensivos: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
     
 class CuidadosIntermedios(SalaDeAtencion):
     def __init__(self, codigo="SDU_WARD", *args, **kwargs):
@@ -79,7 +97,7 @@ class CuidadosIntermedios(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Cuidados Intermedios: {self.total_de_pacientes} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Cuidados Intermedios: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
     
 class Admision(SalaDeAtencion):
     def __init__(self, codigo="GA",*args, **kwargs):
@@ -87,4 +105,4 @@ class Admision(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Admision: {self.total_de_pacientes} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Admision: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"

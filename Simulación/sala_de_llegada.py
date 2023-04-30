@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from numpy import random
 from paciente import Paciente
 import parametros_hospitales as ph
+import parametros_simulacion as ps
+random.seed(ps.SEED)
 
 class SalaDeLLegada(ABC):
 
@@ -30,8 +32,39 @@ class SalaDeLLegada(ABC):
 
 class ListaDeEspera(SalaDeLLegada):
 
-    def __init__(self):
+    def __init__(self, tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD["WL"]):
         super().__init__()
+        self.pacientes_en_atencion = {i: [] for i in range(1, 9)}
+        self.pacientes_atendidos = []
+        self.tiempos_espera = tiempo_espera
+        self.total_de_pacientes_en_espera = 0
+        self.total_de_pacientes_para_ingresar = 0
+        self.cantidad_de_pacientes_por_grupo_en_atencion = {i: 0 for i in range(1, 9)}
+        self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
+
+    def simular_jornada(self):
+        for grupo in self.pacientes_en_atencion:
+            for paciente in self.pacientes_en_atencion[grupo]:
+                paciente.tiempo_atencion_unidad_actual += 0.5  # Se mide en días
+                if paciente.tiempo_atencion_unidad_actual >= self.tiempos_espera[grupo]:
+                    self.pacientes_atendidos.append(paciente)
+                    self.pacientes_en_atencion[grupo].remove(paciente)
+                    self.cantidad_de_pacientes_por_grupo_en_atencion[grupo] -= 1
+                    self.cantidad_de_pacientes_por_grupo_atendidos[grupo] += 1
+                    self.total_de_pacientes_en_espera -= 1
+                    self.total_de_pacientes_para_ingresar += 1
+        self.llegada_de_pacientes()
+
+    def pacientes_listos_para_trasladar(self, unidad):
+        pacientes_listos = []
+        for i in self.pacientes_atendidos:
+            if i.ruta_paciente[0] == unidad:
+                pacientes_listos.append(i)
+        return pacientes_listos
+    
+    def retirar_paciente(self, paciente):
+        self.pacientes_atendidos.remove(paciente)
+        self.total_de_pacientes_para_ingresar -= 1
 
     def llegada_de_pacientes(self):
         for grupo_diagnostico in ph.TASA_LLEGADA_HOSPITAL["WL"]:
@@ -39,7 +72,13 @@ class ListaDeEspera(SalaDeLLegada):
             self.total_de_pacientes += cantidad_de_llegadas
             self.cantidad_de_pacientes_por_grupo[grupo_diagnostico] += cantidad_de_llegadas
             for i in range(cantidad_de_llegadas):
-                self.pacientes.append(Paciente(grupo_diagnostico))
+                paciente = Paciente(grupo_diagnostico)
+                paciente.ruta_paciente.pop(0)
+                paciente.tiempo_atencion_unidad_actual = 0
+                self.pacientes_en_atencion[paciente.grupo_diagnostico].append(paciente)
+                self.cantidad_de_pacientes_por_grupo_en_atencion[paciente.grupo_diagnostico] += 1
+                self.total_de_pacientes_en_espera += 1
+                self.pacientes.append(paciente)
 
     def __str__(self):
         text = "Lista de espera \n"
@@ -85,13 +124,29 @@ class Urgencias(SalaDeLLegada):
         self.total_de_pacientes -= 1
         self.cantidad_de_pacientes_por_grupo[paciente.grupo_diagnostico] -= 1
 
+    def calcular_costos_jornada(self):
+        # Como la atención en urgencias es inmediata, todo el costo por espera es inutil
+        costos_totales = 0
+        costos_muertos = 0
+        for i in self.pacientes:
+            costos_muertos += self.costo[i.grupo_diagnostico]
+        costos_totales += costos_muertos
+        return costos_totales, costos_muertos 
+
     def __str__(self):
         text = f"Urgencias Hospital {self.hospital[-1]}, total de pacientes: {self.total_de_pacientes} \n"
         return text
 
 if __name__ == "__main__":
-    urgencias = Urgencias("H_1")
-    for i in range(10):
-        print(f"Simulación {i}")
-        urgencias.llegada_de_pacientes()
-        print(urgencias)
+    lista_espera = ListaDeEspera(ph.TIEMPOS_ESPERA_POR_UNIDAD["WL"])
+    for i in range(100):
+        lista_espera.simular_jornada()
+        print(f"Jornada {i} \n")
+        print(lista_espera)
+        print(f"Pacientes atendidos: {lista_espera.total_de_pacientes_para_ingresar}")
+        print(f"Pacientes en espera: {lista_espera.total_de_pacientes_en_espera}")
+        print("\n")
+        print("\n")
+
+
+

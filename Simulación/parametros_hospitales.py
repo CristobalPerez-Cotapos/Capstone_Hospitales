@@ -55,25 +55,25 @@ PROBABILIDADES_DE_TRANSICION = {
 
 # Tasa de llegada de pacientes a los hospitales por cada grupo de diagnositico
 TASA_LLEGADA_HOSPITAL = {
-    "H_1" :{1: 1,
-            2: 1,
-            3: 1,
-            4: 1},
+    "H_1" :{1: 2,
+            2: 4,
+            3: 3,
+            4: 5},
 
-    "H_2" :{1: 1,
-            2: 1,
-            3: 1,
-            4: 1},
+    "H_2" :{1: 3,
+            2: 2,
+            3: 5,
+            4: 6},
 
-    "H_3" :{1: 1,
-            2: 1,
-            3: 1,
-            4: 1},
+    "H_3" :{1: 2,
+            2: 4,
+            3: 5,
+            4: 6},
 
     "WL"  :{5: 1,
-            6: 1,
-            7: 1,
-            8: 1}
+            6: 3,
+            7: 4,
+            8: 6}
 }
 
 CAMAS_POR_UNIDAD = {
