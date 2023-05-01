@@ -23,7 +23,7 @@ class Simulador:
     def simular(self):
         simulacion = self.crear_simulacion()
         funcion_objetivo = self.funcion_objetivo(simulacion)
-        for i in range(10000):
+        for i in range(100):
             nueva_estrategia = self.generar_nueva_estrategia(simulacion)
             nueva_estrategia = Estrategia(nueva_estrategia)
             nueva_simulacion = Simulacion(nueva_estrategia)
@@ -35,5 +35,6 @@ class Simulador:
             
             print(f"Simulacion {i+1} de 100")
             print(f"Funcion objetivo: {funcion_objetivo}")
+        print(f"Parametros: {simulacion.estrategia.parametros_estrategia}")
 
 
