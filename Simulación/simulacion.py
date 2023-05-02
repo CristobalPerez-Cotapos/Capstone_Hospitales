@@ -21,6 +21,7 @@ class Simulacion:
             self.hospitales.append(hospital)
 
     def simular(self):
+        random.seed(ps.SEED)
         for dia in range(self.dias_de_simulacion):
             for jornada in range(ps.JORNADAS_POR_DIAS):
                 self.lista_de_espera.simular_jornada()
@@ -48,7 +49,7 @@ class Simulacion:
         self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
 
     def generar_puntaje_paciente(self, paciente):
-        max_puntaje = 0
+        max_puntaje = -1000000000000000000
         for hospital in self.hospitales:
             datos = self.recopilar_informacion()[hospital.nombre]
             datos_WL = self.recopilar_informacion()["WL"]

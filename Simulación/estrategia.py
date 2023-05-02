@@ -26,17 +26,29 @@ class Estrategia:
             puntaje += datos_WL[1][grupo_diagnostico] * self.parametros_estrategia[paciente.grupo_diagnostico]["WL"]["WL"][1][grupo_diagnostico]
         return puntaje
     
-    def mutar_estrategia(self):
+    def mutar_estrategia_fuerte(self):
         nueva_estrategia = deepcopy(self.parametros_estrategia)
         for grupo_diagnostico in nueva_estrategia:
             for hospital in nueva_estrategia[grupo_diagnostico]:
                 for unidad in nueva_estrategia[grupo_diagnostico][hospital]:
                     for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][0]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-1, 1)
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-10, 10)
                     for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][1]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-1, 1)
-                    nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-1, 1)
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-10, 10)
+                    nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-10, 10)
         return nueva_estrategia 
+    
+    def mutar_estrategia_debil(self):
+        nueva_estrategia = deepcopy(self.parametros_estrategia)
+        grupo_diagnostico = rd.choice(list(nueva_estrategia.keys()))
+        hospital = rd.choice(list(nueva_estrategia[grupo_diagnostico].keys()))
+        unidad = rd.choice(list(nueva_estrategia[grupo_diagnostico][hospital].keys()))
+        for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][0]:
+            nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-5, 5)
+        for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][1]:
+            nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-5, 5)
+        nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-5, 5)
+        return nueva_estrategia
 
         
 
