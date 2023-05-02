@@ -38,13 +38,13 @@ class Simulador:
             lista_threads.append(thread)
         for thread in lista_threads:
             thread.join()
-        sorted(self.simulaciones, key=lambda x: x.calcular_funcion_objetivo())
+        sorted(self.simulaciones, key=lambda x: x.calcular_funcion_objetivo(), reverse=True)
         print(f"Funcion objetivo: {self.simulaciones[0].calcular_funcion_objetivo()}")
         mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
 
         for i in range(1000):
             lista_threads = []
-            for j in range(2):
+            for j in range(5):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
                 nuva_estrategia = Estrategia(nuva_estrategia)
                 simulacion = Simulacion(nuva_estrategia)
@@ -52,7 +52,7 @@ class Simulador:
                 thread = Thread(target=simulacion.simular)
                 thread.start()
                 lista_threads.append(thread)
-            for j in range(2, ps.NUMERO_SIMULACIONES_PARALELAS):
+            for j in range(5, ps.NUMERO_SIMULACIONES_PARALELAS):
                 estrtegia = self.generar_nueva_estrategia(simulacion)
                 estrtegia = Estrategia(estrtegia)
                 simulacion = Simulacion(estrtegia)
