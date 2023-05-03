@@ -188,7 +188,7 @@ TASA_LLEGADA_HOSPITAL = {
             7: 0,
             8: 5.41
         }
-    },
+}
 
 
 CAMAS_POR_UNIDAD = {
