@@ -80,5 +80,6 @@ class Simulacion:
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
+        print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}")
         costo_total += self.costo_total_derivacion
         return costo_total

@@ -20,8 +20,10 @@ class Simulador:
         return simulacion.calcular_funcion_objetivo()
     
     def generar_nueva_estrategia(self, simulacion):
-        if random.random() < 0.1:
+        if random.random() < 0.3:
             return simulacion.estrategia.mutar_estrategia_fuerte()
+        elif random.random() < 0.4:
+            return simulacion.estrategia.mutar_estrategia_muy_debil()
         return simulacion.estrategia.mutar_estrategia_debil()
     
     def simular(self):
@@ -39,12 +41,12 @@ class Simulador:
         for thread in lista_threads:
             thread.join()
         sorted(self.simulaciones, key=lambda x: x.calcular_funcion_objetivo(), reverse=True)
-        print(f"Funcion objetivo: {self.simulaciones[0].calcular_funcion_objetivo()}")
+        print(f"Funcion objetivo: {self.simulaciones[0].calcular_funcion_objetivo()} iteracion 0")
         mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
 
         for i in range(1000):
             lista_threads = []
-            for j in range(5):
+            for j in range(3):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
                 nuva_estrategia = Estrategia(nuva_estrategia)
                 simulacion = Simulacion(nuva_estrategia)
@@ -52,7 +54,7 @@ class Simulador:
                 thread = Thread(target=simulacion.simular)
                 thread.start()
                 lista_threads.append(thread)
-            for j in range(5, ps.NUMERO_SIMULACIONES_PARALELAS):
+            for j in range(3, ps.NUMERO_SIMULACIONES_PARALELAS):
                 estrtegia = self.generar_nueva_estrategia(simulacion)
                 estrtegia = Estrategia(estrtegia)
                 simulacion = Simulacion(estrtegia)
@@ -64,7 +66,7 @@ class Simulador:
                 thread.join()
 
             sorted(self.simulaciones, key=lambda x: x.calcular_funcion_objetivo())
-            print(f"Funcion objetivo: {mejor_valor} iteracion {i}")
+            print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} \n")
             if self.simulaciones[0].calcular_funcion_objetivo() < mejor_valor:
                 mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
                 self.estrategia = self.simulaciones[0].estrategia

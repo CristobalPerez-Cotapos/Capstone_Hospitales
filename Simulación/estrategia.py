@@ -5,6 +5,18 @@ class Estrategia:
     def __init__(self, parametros_estrategia:dict):
         self.parametros_estrategia = parametros_estrategia
 
+    def reconstruir_parametros(self):
+        nuevo_parametros = {}
+        for grupo_diagnostico in self.parametros_estrategia:
+            nuevo_parametros[int(grupo_diagnostico)] = {}
+            for unidad in self.parametros_estrategia[int(grupo_diagnostico)]:
+                nuevo_parametros[int(grupo_diagnostico)][unidad] = {}
+                for tipo in self.parametros_estrategia[int(grupo_diagnostico)][unidad]:
+                    nuevo_parametros[int(grupo_diagnostico)][unidad][int(tipo)] = {}
+                    for subtipo in self.parametros_estrategia[int(grupo_diagnostico)][unidad][int(tipo)]:
+                        nuevo_parametros[int(grupo_diagnostico)][unidad][int(tipo)][subtipo] = self.parametros_estrategia[grupo_diagnostico][unidad][tipo][subtipo]
+        self.parametros_estrategia = nuevo_parametros
+
     def generar_punteje_paciente(self, paciente, datos_hospital, datos_WL, hospital):
         parametros = self.parametros_estrategia[paciente.grupo_diagnostico][hospital]
         puntaje = 0
@@ -32,10 +44,10 @@ class Estrategia:
             for hospital in nueva_estrategia[grupo_diagnostico]:
                 for unidad in nueva_estrategia[grupo_diagnostico][hospital]:
                     for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][0]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-10, 10)
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-20, 10)
                     for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][1]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-10, 10)
-                    nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-10, 10)
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-20, 10)
+                    nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-20, 10)
         return nueva_estrategia 
     
     def mutar_estrategia_debil(self):
@@ -49,6 +61,20 @@ class Estrategia:
             nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-5, 5)
         nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-5, 5)
         return nueva_estrategia
+    
+    def mutar_estrategia_muy_debil(self):
+        nueva_estrategia = deepcopy(self.parametros_estrategia)
+        grupo_diagnostico = rd.choice(list(nueva_estrategia.keys()))
+        hospital = rd.choice(list(nueva_estrategia[grupo_diagnostico].keys()))
+        unidad = rd.choice(list(nueva_estrategia[grupo_diagnostico][hospital].keys()))
+        indice = rd.choice([0, 1, 2])
+        if indice == 0 or indice == 1:
+            grupo = rd.choice(list(nueva_estrategia[grupo_diagnostico][hospital][unidad][indice].keys()))
+            nueva_estrategia[grupo_diagnostico][hospital][unidad][indice][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice][grupo] + rd.uniform(-2, 2)
+        else:
+            nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] + rd.uniform(-2, 2)
+        return nueva_estrategia
+
 
         
 
