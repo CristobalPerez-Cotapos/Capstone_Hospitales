@@ -4,6 +4,7 @@ import parametros_simulacion as ps
 import random
 from threading import Thread
 random.seed(ps.SEED)
+from copy import deepcopy
 
 class Simulador:
 
@@ -20,10 +21,13 @@ class Simulador:
         return simulacion.calcular_funcion_objetivo()
     
     def generar_nueva_estrategia(self, simulacion):
-        if random.random() < 0.3:
+        aleatorio = random.random()
+        if aleatorio < 0.3:
             return simulacion.estrategia.mutar_estrategia_fuerte()
-        elif random.random() < 0.4:
+        elif aleatorio < 0.4:
             return simulacion.estrategia.mutar_estrategia_muy_debil()
+        elif aleatorio < 0.8:
+            return simulacion.estrategia.mutar_estrategia_media()
         return simulacion.estrategia.mutar_estrategia_debil()
     
     def simular(self):
@@ -44,7 +48,7 @@ class Simulador:
         print(f"Funcion objetivo: {self.simulaciones[0].calcular_funcion_objetivo()} iteracion 0")
         mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
 
-        for i in range(1000):
+        for i in range(100):
             lista_threads = []
             for j in range(3):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
@@ -69,7 +73,8 @@ class Simulador:
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} \n")
             if self.simulaciones[0].calcular_funcion_objetivo() < mejor_valor:
                 mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
-                self.estrategia = self.simulaciones[0].estrategia
+                self.mejor_diccionario_estrategia = deepcopy(self.simulaciones[0].estrategia.parametros_estrategia)
+                self.estrategia = Estrategia(self.mejor_diccionario_estrategia)
 
         print(f"Funcion objetivo: {mejor_valor}")
         print(self.estrategia.parametros_estrategia)

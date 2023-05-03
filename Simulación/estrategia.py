@@ -50,6 +50,20 @@ class Estrategia:
                     nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-20, 10)
         return nueva_estrategia 
     
+    def mutar_estrategia_media(self):
+        nueva_estrategia = deepcopy(self.parametros_estrategia)
+        grupo_diagnostico = rd.choice(list(nueva_estrategia.keys()))
+        hospital = rd.choice(list(nueva_estrategia[grupo_diagnostico].keys()))
+        unidad = rd.choice(list(nueva_estrategia[grupo_diagnostico][hospital].keys()))
+        indice = rd.choice([0, 1, 2])
+        if indice == 0 or indice == 1:
+            grupo = rd.choice(list(nueva_estrategia[grupo_diagnostico][hospital][unidad][indice].keys()))
+            nueva_estrategia[grupo_diagnostico][hospital][unidad][indice][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice][grupo] + rd.uniform(-20, 20)
+        else:
+            nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] + rd.uniform(-20, 20)
+        return nueva_estrategia
+
+    
     def mutar_estrategia_debil(self):
         nueva_estrategia = deepcopy(self.parametros_estrategia)
         grupo_diagnostico = rd.choice(list(nueva_estrategia.keys()))
