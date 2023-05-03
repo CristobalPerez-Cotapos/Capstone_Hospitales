@@ -6,10 +6,11 @@ import random
 random.seed(ps.SEED)
 
 class Hospital:
-    def __init__(self, nombre):
+    def __init__(self, nombre, simulacion):
         self.costos_total = 0
         self.costos_muertos = 0
         self.nombre = nombre
+        self.simulacion = simulacion
         self.crear_unidades()
         self.lista_de_unidades = [self.urgencias, self.operatorio, self.cuidados_intensivos, self.cuidados_intermedios, self.admision]
 
@@ -17,7 +18,8 @@ class Hospital:
         self.urgencias = Urgencias(hospital=self.nombre, 
                                    costo=ph.COSTOS_POR_UNIDAD[self.nombre]["ED"],
                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["ED"],
-                                   tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["ED"])
+                                   tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["ED"],
+                                   simulacion=self.simulacion)
 
         self.operatorio = Operatorio(hospital=self.nombre,
                                     costo=ph.COSTOS_POR_UNIDAD[self.nombre]["OR"],
@@ -41,12 +43,21 @@ class Hospital:
 
 
     def simular_jornada(self):
-        self.urgencias.simular_jornada()
         self.operatorio.simular_jornada()
         self.cuidados_intensivos.simular_jornada()
         self.cuidados_intermedios.simular_jornada()
         self.admision.simular_jornada()
-        self.desplazamiento_entre_unidades()
+        
+
+        for i in range(5):
+            self.desplazamiento_entre_unidades()   # Lo hacemos 5 veces por las 5 unidades
+
+        self.urgencias.simular_jornada()
+
+        for i in range(5):
+            self.desplazamiento_entre_unidades()   # Lo hacemos 5 veces por las 5 unidades
+
+
         self.calcular_costos_jornada()
 
     def desplazamiento_entre_unidades(self):
@@ -67,7 +78,6 @@ class Hospital:
             for paciente in inicio.pacientes_listos_para_trasladar("FIN"):
                 inicio.retirar_paciente(paciente)
 
-
     def desplazar_paciente(self, paciente, inicio, destino):
         inicio.retirar_paciente(paciente)
         destino.agregar_paciente(paciente)
@@ -83,8 +93,6 @@ class Hospital:
         for unidad in self.lista_de_unidades:
             datos[unidad.codigo] = unidad.recopilar_informacion()
         return datos
-
-
 
     def __str__(self):
         return  f"Hospital: {self.nombre} costo total: {self.costos_total} costo muerto: {self.costos_muertos}\n" + \

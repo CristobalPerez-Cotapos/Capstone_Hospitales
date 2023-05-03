@@ -17,7 +17,7 @@ class Simulacion:
 
     def agregar_hospitales(self):
         for i in range(ps.NUMERO_HOSPITALES):
-            hospital = Hospital(f"H_{i+1}")
+            hospital = Hospital(f"H_{i+1}", simulacion=self)
             self.hospitales.append(hospital)
 
     def simular(self):
@@ -43,10 +43,15 @@ class Simulacion:
             else:
                 self.derivar_paciente(paciente)
 
-    def derivar_paciente(self, paciente):
-        self.lista_de_espera.retirar_paciente(paciente)
-        destino = paciente.ruta_paciente[1]
-        self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
+    def derivar_paciente(self, paciente, ED = False):
+        if not ED:
+            self.lista_de_espera.retirar_paciente(paciente)
+            destino = paciente.ruta_paciente[1]
+            self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
+        else:
+            destino = paciente.ruta_paciente[0]
+            self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
+
 
     def generar_puntaje_paciente(self, paciente):
         max_puntaje = -1000000000000000000

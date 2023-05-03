@@ -11,3 +11,6 @@ estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PROVISORIOS)
 simulacion = Simulador(estrategia)
 simulacion.simular()
 
+#simulacion = Simulacion(estrategia)
+#simulacion.simular()
+

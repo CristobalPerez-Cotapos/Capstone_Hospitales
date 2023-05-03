@@ -93,7 +93,7 @@ class ListaDeEspera(SalaDeLLegada):
 
 class Urgencias(SalaDeLLegada):
 
-    def __init__(self, hospital:str, costo, capacidad, tiempo_espera, codigo="ED"):
+    def __init__(self, hospital:str, costo, capacidad, tiempo_espera, simulacion, codigo="ED"):
         super().__init__()
         self.hospital = hospital
         self.costo = costo
@@ -102,6 +102,7 @@ class Urgencias(SalaDeLLegada):
         self.codigo = codigo
         self.cantidad_de_pacientes_por_grupo_en_atencion = {i: 0 for i in range(1, 9)}
         self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
+        self.simuacion = simulacion
 
     @property
     def camas_disponibles(self):
@@ -117,15 +118,23 @@ class Urgencias(SalaDeLLegada):
     def llegada_de_pacientes(self):
         for grupo_diagnostico in ph.TASA_LLEGADA_HOSPITAL[self.hospital]:
             cantidad_de_llegadas = random.poisson(ph.TASA_LLEGADA_HOSPITAL[self.hospital][grupo_diagnostico])
-            self.total_de_pacientes += cantidad_de_llegadas
-            self.cantidad_de_pacientes_por_grupo_atendidos[grupo_diagnostico] += cantidad_de_llegadas
             for i in range(cantidad_de_llegadas):
                 paciente = Paciente(grupo_diagnostico)
                 if paciente.ruta_paciente[0] == self.codigo:
                     paciente.ruta_paciente.pop(0)
                 else:
                     raise ValueError(f"El paciente con grupo {grupo_diagnostico} no llega a esta sala de llegada")
-                self.pacientes.append(paciente)
+                
+
+                ############ Falta que el paciente sepa a que hospital va #################
+                puntaje, hospital = self.simuacion.generar_puntaje_paciente(paciente)
+                #print(f"El paciente tiene un puntaje de {puntaje} y las camas disponibles son {self.camas_disponibles}")
+                if self.camas_disponibles > 0 and puntaje > 0:
+                    self.pacientes.append(paciente)
+                    self.cantidad_de_pacientes_por_grupo_en_atencion[grupo_diagnostico] += 1
+                    self.total_de_pacientes += 1
+                else:
+                    self.simuacion.derivar_paciente(paciente, ED=True)
 
     def retirar_paciente(self, paciente):
         self.pacientes.remove(paciente)

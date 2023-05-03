@@ -57,6 +57,7 @@ class SalaDeAtencion(ABC):
         costos_muertos = 0
         for i in self.pacientes_atendidos:
             costos_muertos += self.costo[i.grupo_diagnostico]
+            #print(f"El paciente {i.id} ha incurrido en un gasto en la unidad {self.codigo} de {self.costo[i.grupo_diagnostico]}")
         costos_totales += costos_muertos
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
