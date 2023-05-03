@@ -2,8 +2,13 @@ import random as rd
 from copy import deepcopy
 
 class Estrategia:
+
+    id = 0
+
     def __init__(self, parametros_estrategia:dict):
         self.parametros_estrategia = parametros_estrategia
+        self.id = Estrategia.id
+        Estrategia.id += 1
 
     def reconstruir_parametros(self):
         nuevo_parametros = {}

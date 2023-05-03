@@ -48,7 +48,7 @@ class Simulador:
         print(f"Funcion objetivo: {self.simulaciones[0].calcular_funcion_objetivo()} iteracion 0")
         mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
 
-        for i in range(100):
+        for i in range(10):
             lista_threads = []
             for j in range(3):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
@@ -70,7 +70,9 @@ class Simulador:
                 thread.join()
 
             sorted(self.simulaciones, key=lambda x: x.calcular_funcion_objetivo())
-            print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} \n")
+            print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
+            for i in self.estrategia.parametros_estrategia:
+                print(self.estrategia.parametros_estrategia[i])
             if self.simulaciones[0].calcular_funcion_objetivo() < mejor_valor:
                 mejor_valor = self.simulaciones[0].calcular_funcion_objetivo()
                 self.mejor_diccionario_estrategia = deepcopy(self.simulaciones[0].estrategia.parametros_estrategia)
@@ -83,9 +85,9 @@ class Simulador:
         nueva_estrategia = {}
         for key in estrategia1:
             if random.random() <= 0.5:
-                nueva_estrategia[key] = estrategia1[key]
+                nueva_estrategia[key] = deepcopy(estrategia1[key])
             else:
-                nueva_estrategia[key] = estrategia2[key]
+                nueva_estrategia[key] = deepcopy(estrategia2[key])
         return nueva_estrategia
 
 
