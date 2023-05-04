@@ -12,5 +12,6 @@ simulacion = Simulador(estrategia)
 simulacion.simular()
 
 #simulacion = Simulacion(estrategia)
-#simulacion.simular()
+#simulacion.simular_miltiples_veces()
+
 

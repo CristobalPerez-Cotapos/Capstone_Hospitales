@@ -56,9 +56,7 @@ class Hospital:
 
         for i in range(5):
             self.desplazamiento_entre_unidades()   # Lo hacemos 5 veces por las 5 unidades
-
-
-        self.calcular_costos_jornada()
+        
 
     def desplazamiento_entre_unidades(self):
         camas_disponibles = {}
@@ -83,10 +81,17 @@ class Hospital:
         destino.agregar_paciente(paciente)
 
     def calcular_costos_jornada(self):
+        costo_total_diario= 0
+        costo_muerto_diario = 0
         for unidad in self.lista_de_unidades:
             costo_total, costo_muerto = unidad.calcular_costos_jornada()
+
+            costo_total_diario += costo_total
+            costo_muerto_diario += costo_muerto
+
             self.costos_total += costo_total
             self.costos_muertos += costo_muerto
+        return costo_total_diario, costo_muerto_diario
 
     def recopilar_informacion(self):
         datos = {}

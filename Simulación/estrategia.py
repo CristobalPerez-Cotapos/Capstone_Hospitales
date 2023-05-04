@@ -49,10 +49,10 @@ class Estrategia:
             for hospital in nueva_estrategia[grupo_diagnostico]:
                 for unidad in nueva_estrategia[grupo_diagnostico][hospital]:
                     for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][0]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-20, 10)
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-20, 20)
                     for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][1]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-20, 10)
-                    nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-20, 10)
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-20, 20)
+                    nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-20, 20)
         return nueva_estrategia 
     
     def mutar_estrategia_media(self):
