@@ -30,7 +30,7 @@ class Simulacion:
             self.resetear_simulacion()
 
     def simular(self):
-        random.seed(ps.SEED)
+        random.seed(ps.SEED * self.numero_ejecucion)
         for dia in range(self.dias_de_simulacion):
             for jornada in range(ps.JORNADAS_POR_DIAS):
                 self.lista_de_espera.simular_jornada()
@@ -95,7 +95,7 @@ class Simulacion:
         return informacion
     
     def calcular_funcion_objetivo(self):
-        valores = list(self.costos_diarios.values())[ps.DIAS_TRANCIENTE:]
+        valores = list(self.costos_diarios.values())
         muestra = []
         for i in ps.ID_DIAS_MUESTRAS:
             muestra.append(valores[i])
@@ -111,7 +111,6 @@ class Simulacion:
     def resetear_simulacion(self):
         self.costos_diarios = {i : 0 for i in range(self.dias_de_simulacion)}
         self.numero_ejecucion += 1
-        random.seed(ps.SEED * self.numero_ejecucion)
         self.hospitales = []
         self.dias_transcurridos = 0
         self.dias_de_simulacion = ps.DIAS_DE_SIMULACION

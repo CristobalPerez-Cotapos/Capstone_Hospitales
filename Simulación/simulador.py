@@ -14,7 +14,7 @@ class Simulador:
 
     def crear_simulacion(self):
         simulacion = Simulacion(self.estrategia)
-        simulacion.simular()
+        simulacion.simular_miltiples_veces()
         return simulacion
 
     def funcion_objetivo(self, simulacion):
@@ -33,6 +33,7 @@ class Simulador:
     def simular(self):
         lista_threads = []
         simulacion = self.crear_simulacion()
+        print(f"Funcion objetivo: {simulacion.promedio_resultados()} solucion original")
         self.simulaciones.append(simulacion)
         for i in range(ps.NUMERO_SIMULACIONES_PARALELAS):
             estrtegia = self.generar_nueva_estrategia()
