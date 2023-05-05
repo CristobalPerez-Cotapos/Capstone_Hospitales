@@ -20,22 +20,22 @@ class Simulador:
     def funcion_objetivo(self, simulacion):
         return simulacion.calcular_funcion_objetivo()
     
-    def generar_nueva_estrategia(self, simulacion):
+    def generar_nueva_estrategia(self):
         aleatorio = random.random()
-        if aleatorio < 0.3:
-            return simulacion.estrategia.mutar_estrategia_fuerte()
+        if aleatorio < 0.15:
+            return self.estrategia.mutar_estrategia_fuerte()
         elif aleatorio < 0.4:
-            return simulacion.estrategia.mutar_estrategia_muy_debil()
+            return self.estrategia.mutar_estrategia_muy_debil()
         elif aleatorio < 0.8:
-            return simulacion.estrategia.mutar_estrategia_media()
-        return simulacion.estrategia.mutar_estrategia_debil()
+            return self.estrategia.mutar_estrategia_media()
+        return self.estrategia.mutar_estrategia_debil()
     
     def simular(self):
         lista_threads = []
         simulacion = self.crear_simulacion()
         self.simulaciones.append(simulacion)
         for i in range(ps.NUMERO_SIMULACIONES_PARALELAS):
-            estrtegia = self.generar_nueva_estrategia(simulacion)
+            estrtegia = self.generar_nueva_estrategia()
             estrtegia = Estrategia(estrtegia)
             simulacion = Simulacion(estrtegia)
             self.simulaciones.append(simulacion)
@@ -44,7 +44,7 @@ class Simulador:
             lista_threads.append(thread)
         for thread in lista_threads:
             thread.join()
-        self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados(), reverse=True)
+        self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
         print(f"Funcion objetivo: {self.simulaciones[0].promedio_resultados()} iteracion 0")
         mejor_valor = self.simulaciones[0].promedio_resultados()
 
@@ -59,7 +59,7 @@ class Simulador:
                 thread.start()
                 lista_threads.append(thread)
             for j in range(3, ps.NUMERO_SIMULACIONES_PARALELAS):
-                estrtegia = self.generar_nueva_estrategia(simulacion)
+                estrtegia = self.generar_nueva_estrategia()
                 estrtegia = Estrategia(estrtegia)
                 simulacion = Simulacion(estrtegia)
                 self.simulaciones[j] = simulacion

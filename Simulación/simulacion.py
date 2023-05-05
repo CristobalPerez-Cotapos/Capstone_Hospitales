@@ -96,7 +96,9 @@ class Simulacion:
     
     def calcular_funcion_objetivo(self):
         valores = list(self.costos_diarios.values())[ps.DIAS_TRANCIENTE:]
-        muestra = random.sample(valores, ps.MUESTRAS_POR_SIMULACION)
+        muestra = []
+        for i in ps.ID_DIAS_MUESTRAS:
+            muestra.append(valores[i])
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
