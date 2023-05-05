@@ -102,7 +102,8 @@ class Simulacion:
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
-        #print(f"{costo_total + self.costo_total_derivacion}Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}")
+        print(f"Costo total: {self.costo_total_derivacion}, Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}," +
+               f" estrategia: {self.estrategia.id}")
         
         promedio = sum(muestra)/len(muestra)
         #print(f"Promedio diario: {promedio}")
