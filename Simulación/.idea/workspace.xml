@@ -3,12 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="22bcf21b-fa73-402a-abc4-1b20af182f6a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/estrategia.py" beforeDir="false" afterPath="$PROJECT_DIR$/estrategia.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parametros_hospitales.py" beforeDir="false" afterPath="$PROJECT_DIR$/parametros_hospitales.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parametros_simulacion.py" beforeDir="false" afterPath="$PROJECT_DIR$/parametros_simulacion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/simulacion.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulacion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/simulador.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulador.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

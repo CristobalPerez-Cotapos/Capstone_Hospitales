@@ -1,10 +1,10 @@
 PROBABILIDADES_DE_TRANSICION = {
     5: {
         "WL": {"GA": 100},
-        "ICU": {"SDU_WARD": 96,"OR": 4},
-        "GA": {"SDU_WARD": 60.17441860465116,"OR": 18.02325581395349,"ICU": 21.80232558139535},
-        "OR": {"SDU_WARD": 10,"ICU": 90},
-        "SDU_WARD": {"FIN": 94,"OR": 2,"ICU": 4},
+        "ICU": {"SDU_WARD": 96, "OR": 4},
+        "GA": {"SDU_WARD": 60.17441860465116, "OR": 18.02325581395349,"ICU": 21.80232558139535},
+        "OR": {"SDU_WARD": 10, "ICU": 90},
+        "SDU_WARD": {"FIN": 94, "OR": 2,"ICU": 4},
         "PS": {"FIN": 100.0}
     },
         6: {
