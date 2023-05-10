@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import parametros_simulacion as ps
+import parametros_hospitales as ph
 import random 
 random.seed(ps.SEED)
 
@@ -33,12 +34,9 @@ class SalaDeAtencion(ABC):
         self.cantidad_de_pacientes_por_grupo_en_atencion[paciente.grupo_diagnostico] += 1
         self.total_de_pacientes_en_atencion += 1
 
-
     def simular_jornada(self):
         for paciente in self.pacientes_atendidos:
             paciente.tiempo_atencion_unidad_actual += 0.5
-            if paciente.tiempo_esperado_muerto > 0:
-                print(f"El paciente {paciente.id} ha muerto en la unidad {self.codigo} hace {paciente.tiempo_esperado_muerto} días")
 
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
@@ -63,6 +61,9 @@ class SalaDeAtencion(ABC):
         costos_muertos = 0
         for i in self.pacientes_atendidos:
             costos_muertos += self.costo[i.grupo_diagnostico]
+            if i.ruta_paciente[1] != "FIN":
+                costos_muertos += ph.VALOR_RIESGO[i.ruta_paciente[0]][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1] * ps.COSTO_VIDA
+                pass
             #print(f"El paciente {i.id} ha incurrido en un gasto en la unidad {self.codigo} de {self.costo[i.grupo_diagnostico]}")
         costos_totales += costos_muertos
         for grupo in self.pacientes_en_atencion:

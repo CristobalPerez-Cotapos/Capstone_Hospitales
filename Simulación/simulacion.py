@@ -54,15 +54,15 @@ class Simulacion:
         for paciente in pacientes_listos:
             puntaje, hospital = self.generar_puntaje_paciente(paciente)
             if hospital.admision.camas_disponibles > 0 and puntaje > 0:
-                hospital.admision.agregar_paciente(paciente)
                 self.lista_de_espera.retirar_paciente(paciente)
+                hospital.admision.agregar_paciente(paciente)
+                hospital.desplazamiento_entre_unidades()
             else:
                 self.derivar_paciente(paciente)
 
     def derivar_paciente(self, paciente, ED = False):
         if not ED:
             self.lista_de_espera.retirar_paciente(paciente)
-            #print(f"El paciente {paciente.id} fue derivado")
             destino = paciente.ruta_paciente[1]
             self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.costos_diarios[self.dias_transcurridos] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
