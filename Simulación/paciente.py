@@ -1,6 +1,8 @@
 from random import uniform, randint, seed
 from parametros_hospitales import PROBABILIDADES_DE_TRANSICION
 import parametros_simulacion as ps
+import parametros_hospitales as ph
+import scipy.stats as sp
 
 seed(ps.SEED)
 
@@ -16,7 +18,8 @@ class Paciente():
         self.tiempo_esperado = 0
         self.ruta_paciente = []
         self.definir_ruta_paciente()
-        self.tiempo_antencion_unidad_actual = 0
+        self.tiempo_atencion_unidad_actual = 0
+        self.tiempo_a_esperar = None
 
     def definir_ruta_paciente(self):
         if self.grupo_diagnostico >= 5:
@@ -35,6 +38,26 @@ class Paciente():
             if azar <= probabilidad_acumulada:
                 self.ruta_paciente.append(i)
                 break
+
+    def tiempo_espera(self, gravedad, unidad):
+        if unidad != "GA" and unidad != "FIN":
+            sigma = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Sigma"]
+            loc = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Loc"]
+            scale = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Scale"]
+            maximo = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Maximo"]
+            minimo = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Minimo"]
+            valor = sp.lognorm.rvs(loc=loc, s=sigma, scale=scale, size=1)[0]
+            valor = min(maximo, valor)
+            valor = max(minimo, valor)
+            self.tiempo_a_esperar = valor / 2
+            
+        elif unidad == "GA" and unidad != "FIN":
+            self.tiempo_a_esperar = 0
+
+    @property
+    def tiempo_esperado_muerto(self):
+        #print(self.id, self.tiempo_antencion_unidad_actual, self.tiempo_a_esperar)
+        return max(0, self.tiempo_atencion_unidad_actual - self.tiempo_a_esperar)
 
     def __str__(self):
         return f"Paciente {self.id} (grupo {self.grupo_diagnostico})"

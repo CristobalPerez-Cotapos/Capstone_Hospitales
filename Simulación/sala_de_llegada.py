@@ -66,6 +66,7 @@ class ListaDeEspera(SalaDeLLegada):
         self.pacientes_atendidos.remove(paciente)
         self.total_de_pacientes_para_ingresar -= 1
         self.cantidad_de_pacientes_por_grupo_atendidos[paciente.grupo_diagnostico] -= 1
+        #print(f"El paciente {paciente.id} ha sido retirado de la lista de espera")
 
     def llegada_de_pacientes(self):
         for grupo_diagnostico in ph.TASA_LLEGADA_HOSPITAL["WL"]:
@@ -129,6 +130,7 @@ class Urgencias(SalaDeLLegada):
             
         # Ordenar pacientes por costo de derivación
         nuevos_pacientes = sorted(nuevos_pacientes, key=lambda x: ph.COSTOS_DERIVACION[paciente.ruta_paciente[0]][grupo_diagnostico], reverse=True)
+        #print(f"Se han generado {len(nuevos_pacientes)} nuevos pacientes")
         for paciente in nuevos_pacientes:
             ############ Falta que el paciente sepa a que hospital va #################
             puntaje, hospital = self.simuacion.generar_puntaje_paciente(paciente)
@@ -138,6 +140,7 @@ class Urgencias(SalaDeLLegada):
                 self.cantidad_de_pacientes_por_grupo_en_atencion[grupo_diagnostico] += 1
                 self.total_de_pacientes += 1
             else:
+                print(f"El paciente con grupo {paciente.grupo_diagnostico} no fue atendido en ED y fue derivado al sistema privado")
                 self.simuacion.derivar_paciente(paciente, ED=True)
 
     def retirar_paciente(self, paciente):
@@ -160,7 +163,7 @@ class Urgencias(SalaDeLLegada):
                self.camas_disponibles)
 
     def __str__(self):
-        text = f"Urgencias Hospital {self.hospital[-1]}, total de pacientes: {self.total_de_pacientes} \n"
+        text = f"Urgencias Hospital {self.hospital[-1]}, total de pacientes: {self.total_de_pacientes}, camas disponibles: {self.camas_disponibles}"
         return text
 
 if __name__ == "__main__":

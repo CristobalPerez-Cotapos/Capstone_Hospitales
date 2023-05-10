@@ -33,14 +33,14 @@ class Simulacion:
         random.seed(ps.SEED * self.numero_ejecucion)
         for dia in range(self.dias_de_simulacion):
             for jornada in range(ps.JORNADAS_POR_DIAS):
-                self.lista_de_espera.simular_jornada()
-                self.trasladar_pacientes_lista_de_espera()
                 for hospital in self.hospitales:
                     hospital.simular_jornada()
+                self.lista_de_espera.simular_jornada()
+                self.trasladar_pacientes_lista_de_espera()
                 self.agregar_costos_jornada_hospitales()
-                #print(f"Jornada {jornada+1} del dia {dia+1}")
-                #print("------------------------------------------------")
-                #self.imprimir_estado()
+                print(f"Jornada {jornada+1} del dia {dia+1}")
+                print("------------------------------------------------")
+                self.imprimir_estado()
             self.dias_transcurridos += 1
         self.resultados.append(self.calcular_funcion_objetivo())
 
@@ -62,6 +62,7 @@ class Simulacion:
     def derivar_paciente(self, paciente, ED = False):
         if not ED:
             self.lista_de_espera.retirar_paciente(paciente)
+            #print(f"El paciente {paciente.id} fue derivado")
             destino = paciente.ruta_paciente[1]
             self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.costos_diarios[self.dias_transcurridos] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
@@ -69,7 +70,6 @@ class Simulacion:
             destino = paciente.ruta_paciente[0]
             self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.costos_diarios[self.dias_transcurridos] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
-
 
     def generar_puntaje_paciente(self, paciente):
         max_puntaje = -1000000000000000000
@@ -81,7 +81,6 @@ class Simulacion:
                 max_puntaje = puntaje
                 hospital_asignado = hospital
         return max_puntaje, hospital_asignado
-
 
     def imprimir_estado(self):
         for hospital in self.hospitales:

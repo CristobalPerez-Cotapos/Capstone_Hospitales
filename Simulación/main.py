@@ -8,10 +8,12 @@ from cargar_datos import leer_parametros
 random.seed(ps.SEED)
 
 estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PROVISORIOS)
-simulacion = Simulador(estrategia)
-simulacion.simular()
+#simulacion = Simulador(estrategia)
+#simulacion.simular()
 
-#simulacion = Simulacion(estrategia)
-#simulacion.simular_miltiples_veces()
+simulacion = Simulacion(estrategia)
+simulacion.simular_miltiples_veces()
+
+print("Costo total: ", simulacion.promedio_resultados())
 
 

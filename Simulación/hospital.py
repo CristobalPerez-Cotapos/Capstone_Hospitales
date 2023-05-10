@@ -100,7 +100,7 @@ class Hospital:
         return datos
 
     def __str__(self):
-        return  f"Hospital: {self.nombre} costo total: {self.costos_total} costo muerto: {self.costos_muertos}\n" + \
+        return  f"Hospital: {self.nombre} costo total: {self.costos_total} costo muerto: {self.costos_muertos} \n \n" + \
                 f"{self.urgencias}\n" + \
                 f"{self.operatorio}\n" + \
                 f"{self.cuidados_intensivos}\n" + \

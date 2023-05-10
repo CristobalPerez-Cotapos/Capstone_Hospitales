@@ -26,6 +26,7 @@ class SalaDeAtencion(ABC):
         return self.capacidad - self.total_de_pacientes
 
     def agregar_paciente(self, paciente):
+        paciente.tiempo_espera(paciente.grupo_diagnostico, paciente.ruta_paciente[0])
         paciente.ruta_paciente.pop(0)
         paciente.tiempo_atencion_unidad_actual = 0
         self.pacientes_en_atencion[paciente.grupo_diagnostico].append(paciente)
@@ -34,10 +35,15 @@ class SalaDeAtencion(ABC):
 
 
     def simular_jornada(self):
+        for paciente in self.pacientes_atendidos:
+            paciente.tiempo_atencion_unidad_actual += 0.5
+            if paciente.tiempo_esperado_muerto > 0:
+                print(f"El paciente {paciente.id} ha muerto en la unidad {self.codigo} hace {paciente.tiempo_esperado_muerto} días")
+
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
                 paciente.tiempo_atencion_unidad_actual += 0.5  # Se mide en días
-                if paciente.tiempo_atencion_unidad_actual >= self.tiempos_espera[grupo]:
+                if paciente.tiempo_atencion_unidad_actual >= paciente.tiempo_a_esperar:
                     self.pacientes_atendidos.append(paciente)
                     self.pacientes_en_atencion[grupo].remove(paciente)
                     self.cantidad_de_pacientes_por_grupo_en_atencion[grupo] -= 1
@@ -82,7 +88,7 @@ class Operatorio(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Operatoria: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Operatoria: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos, {self.camas_disponibles} camas disponibles"
     
 class CuidadosIntensivos(SalaDeAtencion):
     def __init__(self, codigo="ICU",*args, **kwargs):
@@ -90,7 +96,7 @@ class CuidadosIntensivos(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Cuidados Intensivos: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Cuidados Intensivos: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos, {self.camas_disponibles} camas disponibles"
     
 class CuidadosIntermedios(SalaDeAtencion):
     def __init__(self, codigo="SDU_WARD", *args, **kwargs):
@@ -98,7 +104,7 @@ class CuidadosIntermedios(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Cuidados Intermedios: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Cuidados Intermedios: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos, {self.camas_disponibles} camas disponibles"
     
 class Admision(SalaDeAtencion):
     def __init__(self, codigo="GA",*args, **kwargs):
@@ -106,4 +112,4 @@ class Admision(SalaDeAtencion):
         self.codigo = codigo
 
     def __str__(self):
-        return f"Admision: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos"
+        return f"Admision: {self.total_de_pacientes_en_atencion} pacientes en atención, {self.total_de_pacientes_atendidos} pacientes atendidos, {self.camas_disponibles} camas disponibles"
