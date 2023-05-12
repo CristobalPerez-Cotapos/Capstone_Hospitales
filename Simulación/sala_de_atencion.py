@@ -63,7 +63,6 @@ class SalaDeAtencion(ABC):
             costos_muertos += self.costo[i.grupo_diagnostico]
             if i.ruta_paciente[1] != "FIN":
                 costos_muertos += ph.VALOR_RIESGO[i.ruta_paciente[0]][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1] * ps.COSTO_VIDA
-                pass
             #print(f"El paciente {i.id} ha incurrido en un gasto en la unidad {self.codigo} de {self.costo[i.grupo_diagnostico]}")
         costos_totales += costos_muertos
         for grupo in self.pacientes_en_atencion:

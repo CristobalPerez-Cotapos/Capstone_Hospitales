@@ -15,6 +15,7 @@ class Simulacion:
         self.dias_de_simulacion = ps.DIAS_DE_SIMULACION
         self.lista_de_espera = ListaDeEspera()
         self.costo_total_derivacion = 0
+        self.costos_muertos_WL = 0
         self.resultados = []
         self.costos_diarios = {i : 0 for i in range(self.dias_de_simulacion)}
         self.agregar_hospitales()
@@ -37,17 +38,20 @@ class Simulacion:
                     hospital.simular_jornada()
                 self.lista_de_espera.simular_jornada()
                 self.trasladar_pacientes_lista_de_espera()
-                self.agregar_costos_jornada_hospitales()
-                print(f"Jornada {jornada+1} del dia {dia+1}")
-                print("------------------------------------------------")
-                self.imprimir_estado()
+                self.agregar_costos_jornada_hospitales_y_WL()
+                #print(f"Jornada {jornada+1} del dia {dia+1}")
+                #print("------------------------------------------------")
+                #self.imprimir_estado()
             self.dias_transcurridos += 1
         self.resultados.append(self.calcular_funcion_objetivo())
 
-    def agregar_costos_jornada_hospitales(self):
+    def agregar_costos_jornada_hospitales_y_WL(self):
         for hospital in self.hospitales:
             costos_totales, costos_muertos = hospital.calcular_costos_jornada()
             self.costos_diarios[self.dias_transcurridos] += costos_muertos
+        costos_totales, costos_muertos = self.lista_de_espera.calcular_costos_jornada()
+        self.costos_diarios[self.dias_transcurridos] += costos_muertos
+        self.costos_muertos_WL += costos_muertos
 
     def trasladar_pacientes_lista_de_espera(self):
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
@@ -58,7 +62,8 @@ class Simulacion:
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()
             else:
-                self.derivar_paciente(paciente)
+                if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
+                    self.derivar_paciente(paciente)
 
     def derivar_paciente(self, paciente, ED = False):
         if not ED:
@@ -83,6 +88,7 @@ class Simulacion:
         return max_puntaje, hospital_asignado
 
     def imprimir_estado(self):
+        print(f"Largo de la lista de espera {len(self.lista_de_espera.pacientes_atendidos)}")
         for hospital in self.hospitales:
             print(hospital)
 
@@ -94,18 +100,17 @@ class Simulacion:
         return informacion
     
     def calcular_funcion_objetivo(self):
-        valores = list(self.costos_diarios.values())
         muestra = []
         for i in ps.ID_DIAS_MUESTRAS:
-            muestra.append(valores[i])
+            muestra.append(self.costos_diarios[i])
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
-        print(f"Costo total: {self.costo_total_derivacion}, Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}," +
-               f" estrategia: {self.estrategia.id}")
+        print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}, costos muertos WL: {self.costos_muertos_WL}" +
+              f" estrategia: {self.estrategia.id}")
         
         promedio = sum(muestra)/len(muestra)
-        #print(f"Promedio diario: {promedio}")
+        print(f"Promedio diario: {promedio}")
         return promedio
 
     def resetear_simulacion(self):
@@ -116,6 +121,7 @@ class Simulacion:
         self.dias_de_simulacion = ps.DIAS_DE_SIMULACION
         self.lista_de_espera = ListaDeEspera()
         self.costo_total_derivacion = 0
+        self.costos_muertos_WL = 0
         self.agregar_hospitales()
 
     def promedio_resultados(self):

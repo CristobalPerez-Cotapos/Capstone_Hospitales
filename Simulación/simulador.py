@@ -49,7 +49,7 @@ class Simulador:
         print(f"Funcion objetivo: {self.simulaciones[0].promedio_resultados()} iteracion 0")
         mejor_valor = self.simulaciones[0].promedio_resultados()
 
-        for i in range(200):
+        for i in range(15):
             lista_threads = []
             for j in range(3):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)

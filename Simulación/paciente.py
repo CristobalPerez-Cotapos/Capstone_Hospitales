@@ -56,9 +56,7 @@ class Paciente():
 
     @property
     def tiempo_esperado_muerto(self):
-        #print(self.id, self.tiempo_antencion_unidad_actual, self.tiempo_a_esperar)
-        #return max(0, self.tiempo_atencion_unidad_actual - self.tiempo_a_esperar)
-        return self.tiempo_atencion_unidad_actual
+        return max(0, self.tiempo_atencion_unidad_actual - self.tiempo_a_esperar)
 
     def __str__(self):
         return f"Paciente {self.id} (grupo {self.grupo_diagnostico})"

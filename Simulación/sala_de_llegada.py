@@ -28,7 +28,7 @@ class SalaDeLLegada(ABC):
     def simular_jornada(self):
         self.llegada_de_pacientes()
 
-   
+
 
 class ListaDeEspera(SalaDeLLegada):
 
@@ -43,6 +43,10 @@ class ListaDeEspera(SalaDeLLegada):
         self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
 
     def simular_jornada(self):
+        for i in self.pacientes_atendidos:
+            i.tiempo_atencion_unidad_actual += 0.5
+
+        self.llegada_de_pacientes()
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
                 paciente.tiempo_atencion_unidad_actual += 0.5  # Se mide en días
@@ -53,13 +57,13 @@ class ListaDeEspera(SalaDeLLegada):
                     self.cantidad_de_pacientes_por_grupo_atendidos[grupo] += 1
                     self.total_de_pacientes_en_espera -= 1
                     self.total_de_pacientes_para_ingresar += 1
-        self.llegada_de_pacientes()
 
     def pacientes_listos_para_trasladar(self, unidad):
         pacientes_listos = []
         for i in self.pacientes_atendidos:
             if i.ruta_paciente[0] == unidad:
                 pacientes_listos.append(i)
+        #pacientes_listos.sort(key=lambda i: ph.VALOR_RIESGO["WL"][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1], reverse=True)
         return pacientes_listos
     
     def retirar_paciente(self, paciente):
@@ -75,6 +79,7 @@ class ListaDeEspera(SalaDeLLegada):
             self.cantidad_de_pacientes_por_grupo[grupo_diagnostico] += cantidad_de_llegadas
             for i in range(cantidad_de_llegadas):
                 paciente = Paciente(grupo_diagnostico)
+                paciente.tiempo_a_esperar = self.tiempos_espera[grupo_diagnostico]
                 paciente.ruta_paciente.pop(0)
                 paciente.tiempo_atencion_unidad_actual = 0
                 self.pacientes_en_atencion[paciente.grupo_diagnostico].append(paciente)
@@ -86,6 +91,15 @@ class ListaDeEspera(SalaDeLLegada):
         return {"WL":(self.cantidad_de_pacientes_por_grupo_en_atencion,
                 self.cantidad_de_pacientes_por_grupo_atendidos,
                 0)}
+
+    def calcular_costos_jornada(self):
+        # Como la atención en WL es inmediata, todo el costo por espera es inutil
+        costos_totales = 0
+        costos_muertos = 0
+        for i in self.pacientes_atendidos:
+            costos_muertos += ph.VALOR_RIESGO["WL"][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1] * ps.COSTO_VIDA
+        costos_totales += costos_muertos
+        return costos_totales, costos_muertos 
 
     def __str__(self):
         text = "Lista de espera \n"
@@ -140,7 +154,6 @@ class Urgencias(SalaDeLLegada):
                 self.cantidad_de_pacientes_por_grupo_en_atencion[grupo_diagnostico] += 1
                 self.total_de_pacientes += 1
             else:
-                print(f"El paciente con grupo {paciente.grupo_diagnostico} no fue atendido en ED y fue derivado al sistema privado")
                 self.simuacion.derivar_paciente(paciente, ED=True)
 
     def retirar_paciente(self, paciente):
