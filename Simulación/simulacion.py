@@ -19,6 +19,11 @@ class Simulacion:
         self.resultados = []
         self.costos_diarios = {i : 0 for i in range(self.dias_de_simulacion)}
         self.agregar_hospitales()
+        self.costos_derivacion = {}
+        self.funciones_objetivos = {}
+        self.dicc_costos_muertos_WL = {}
+        self.capacidades_camas = {}
+        self.capacidad_cama_por_simulacion = {}
 
     def agregar_hospitales(self):
         for i in range(ps.NUMERO_HOSPITALES):
@@ -39,11 +44,19 @@ class Simulacion:
                 self.lista_de_espera.simular_jornada()
                 self.trasladar_pacientes_lista_de_espera()
                 self.agregar_costos_jornada_hospitales_y_WL()
-                #print(f"Jornada {jornada+1} del dia {dia+1}")
-                #print("------------------------------------------------")
-                #self.imprimir_estado()
+                jornada_actual = dia * 2 + jornada
+                for hospital in self.hospitales:
+                    tasas_camas = hospital.revisar_capacidades_camas(jornada_actual)
+                    if tasas_camas != None:
+                        self.capacidad_cama_por_simulacion[jornada_actual] = tasas_camas
+                        print(tasas_camas)
+                        print(f"Jornada {jornada+1} del dia {dia+1}")
+                        print("------------------------------------------------")
+                        self.imprimir_estado()
+                
             self.dias_transcurridos += 1
         self.resultados.append(self.calcular_funcion_objetivo())
+        self.capacidades_camas[self.numero_ejecucion] = self.capacidad_cama_por_simulacion
 
     def agregar_costos_jornada_hospitales_y_WL(self):
         for hospital in self.hospitales:
@@ -112,6 +125,7 @@ class Simulacion:
               f" estrategia: {self.estrategia.id}")
         
         promedio = sum(muestra)/len(muestra)
+        self.funciones_objetivos[self.numero_ejecucion] = promedio
         print(f"Promedio diario: {promedio}")
         return promedio
 
@@ -124,6 +138,7 @@ class Simulacion:
         self.lista_de_espera = ListaDeEspera()
         self.costo_total_derivacion = 0
         self.costos_muertos_WL = 0
+        self.capacidad_cama_por_simulacion = {}
         self.agregar_hospitales()
 
     def promedio_resultados(self):

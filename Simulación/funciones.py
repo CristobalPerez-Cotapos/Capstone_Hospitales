@@ -9,7 +9,7 @@ class Parametros:
         pass
         
     def leer_parametros(self, llave): ## con esta podes extraer datos del json
-        ruta = join("parametros.json")
+        ruta = join("Simulación/parametros.json")
         with open(ruta, "r") as archivo:
             diccionario_data = json.load(archivo)
         valor = diccionario_data[llave]

@@ -13,6 +13,7 @@ class Hospital:
         self.simulacion = simulacion
         self.crear_unidades()
         self.lista_de_unidades = [self.urgencias, self.operatorio, self.cuidados_intensivos, self.cuidados_intermedios, self.admision]
+        self.capacidades = {}
 
     def crear_unidades(self):
         self.urgencias = Urgencias(hospital=self.nombre, 
@@ -40,6 +41,18 @@ class Hospital:
                                 costo=ph.COSTOS_POR_UNIDAD[self.nombre]["GA"],
                                 capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["GA"],
                                 tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["GA"])
+        
+    def revisar_capacidades_camas(self, numero_jornada):
+        if numero_jornada in ps.ID_DIAS_MUESTRAS:
+            dicc = {}
+            for unidad in self.lista_de_unidades:
+                codigo = unidad.codigo
+                tasa_ocupacion = (ph.CAMAS_POR_UNIDAD[self.nombre][codigo] - unidad.camas_disponibles) 
+                tasa_ocupacion = tasa_ocupacion / ph.CAMAS_POR_UNIDAD[self.nombre][codigo] * 100
+                dicc[codigo] = f"{tasa_ocupacion} %"
+            return dicc
+        return None
+
 
     def simular_jornada(self):
         self.operatorio.simular_jornada()
