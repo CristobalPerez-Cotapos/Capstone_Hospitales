@@ -59,12 +59,7 @@ class ListaDeEspera(SalaDeLLegada):
                     self.total_de_pacientes_para_ingresar += 1
 
     def pacientes_listos_para_trasladar(self, unidad):
-        pacientes_listos = []
-        for i in self.pacientes_atendidos:
-            if i.ruta_paciente[0] == unidad:
-                pacientes_listos.append(i)
-        #pacientes_listos.sort(key=lambda i: ph.VALOR_RIESGO["WL"][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1], reverse=True)
-        return pacientes_listos
+        return self.pacientes_atendidos
     
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)

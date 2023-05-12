@@ -57,10 +57,12 @@ class Simulacion:
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
         for paciente in pacientes_listos:
             puntaje, hospital = self.generar_puntaje_paciente(paciente)
-            if hospital.admision.camas_disponibles > 0 and puntaje > 0:
+            if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
                 self.lista_de_espera.retirar_paciente(paciente)
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()
+            elif puntaje < 0:
+                self.derivar_paciente(paciente)
             else:
                 if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
                     self.derivar_paciente(paciente)
