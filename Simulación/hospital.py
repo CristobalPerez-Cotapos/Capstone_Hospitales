@@ -42,14 +42,14 @@ class Hospital:
                                 capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["GA"],
                                 tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["GA"])
         
-    def revisar_capacidades_camas(self, numero_jornada):
-        if numero_jornada in ps.ID_DIAS_MUESTRAS:
+    def revisar_capacidades_camas(self, dia):
+        if dia in ps.ID_DIAS_MUESTRAS:
             dicc = {}
             for unidad in self.lista_de_unidades:
                 codigo = unidad.codigo
                 tasa_ocupacion = (ph.CAMAS_POR_UNIDAD[self.nombre][codigo] - unidad.camas_disponibles) 
                 tasa_ocupacion = tasa_ocupacion / ph.CAMAS_POR_UNIDAD[self.nombre][codigo] * 100
-                dicc[codigo] = f"{tasa_ocupacion} %"
+                dicc[codigo] = tasa_ocupacion
             return dicc
         return None
 
