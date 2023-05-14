@@ -55,20 +55,6 @@ class Analisis:
         for valor in valores_derivaciones_inicial:
             if self.intervalo_confianza_derivaciones[0] > valor or self.intervalo_confianza_derivaciones[1] < valor:
                 self.condicion_derivaciones = False
-        
-        
-        print(self.intervalo_confianza_espera_WL)
-        print("")
-        print(valores_WL_inicial)
-        print("")
-        print("")
-        print(self.intervalo_confianza_costos_muertos)
-        print("")
-        print(valores_costos_muertos_inicial)
-        print("")
-        print("")
-        print(self.intervalo_confianza_derivaciones)
-        print("")
-        print(valores_derivaciones_inicial)
+
 
 

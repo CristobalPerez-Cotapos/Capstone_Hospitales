@@ -5,13 +5,19 @@ from paciente import Paciente
 from estrategia import Estrategia
 from simulador import Simulador
 from cargar_datos import leer_parametros
+from funciones import Archivos as ar
 from analisis_resultados import Analisis
 random.seed(ps.SEED)
 
-estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PROVISORIOS)
-simulacion = Simulacion(estrategia)
-simulacion.simular_cambio_estrategia()
+# estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PROVISORIOS)
+# simulacion = Simulador(estrategia)
+# simulacion.simular_mejores_estrategias()
 
+
+estrategia = Estrategia(ar('None').leer_estrategias()["Estrategia 243"])
+simulacion = Simulacion(estrategia)
+simulacion.simular()
+print(simulacion.costos_muertos_hospitales)
 #simulacion = Simulacion(estrategia)
 #simulacion.simular_miltiples_veces()
 

@@ -61,9 +61,10 @@ class Simulacion:
                     tasas_camas = hospital.revisar_capacidades_camas(self.dias_transcurridos)
                     if tasas_camas != None:
                         self.capacidad_cama_por_simulacion[self.jornadas_transcurridas] = tasas_camas
-                # print(f"Jornada {jornada+1} del dia {dia+1}")
-                # print("------------------------------------------------")
-                # self.imprimir_estado()
+                if 55 < dia < 95:
+                    print(f"Jornada {jornada+1} del dia {dia+1}")
+                    print("------------------------------------------------")
+                    self.imprimir_estado()
                 self.jornadas_transcurridas += 1
             self.dias_transcurridos += 1
         self.resultados.append(self.calcular_funcion_objetivo())
@@ -82,7 +83,7 @@ class Simulacion:
         self.costos_diarios = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}
         for dia in range(ps.DIAS_SIMULACION_CAMBIO):
             if dia >= self.dias_de_simulacion - 1:
-                self.estrategia = Estrategia(ar('None').leer_estrategias()['Estrategia 8'])
+                self.estrategia = Estrategia(ar('None').leer_estrategias()['Estrategia 243'])
             for jornada in range(ps.JORNADAS_POR_DIAS):
                 for hospital in self.hospitales:
                     hospital.simular_jornada()
