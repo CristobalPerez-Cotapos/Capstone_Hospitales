@@ -9,7 +9,7 @@ class Parametros:
         pass
         
     def leer_parametros(self, llave): ## con esta podes extraer datos del json
-        ruta = join("Simulación/parametros.json")
+        ruta = join("parametros.json")
         with open(ruta, "r") as archivo:
             diccionario_data = json.load(archivo)
         valor = diccionario_data[llave]
@@ -242,4 +242,33 @@ class Archivos:
         ruta = join("estrategias.json")
         with open(ruta, "r") as archivo:
             diccionario = json.load(archivo)
-        return diccionario
+        diccionario_auxiliar = {}
+        for key in diccionario.keys():
+            diccionario_auxiliar[key] = {}
+            for key2 in diccionario[key].keys():
+                diccionario_auxiliar[key][int(key2)] = {}
+                for key3 in diccionario[key][key2].keys():
+                    diccionario_auxiliar[key][int(key2)][key3] = {}
+                    for key4 in diccionario[key][key2][key3].keys():
+                        lista = []
+                        for elemento in diccionario[key][key2][key3][key4]:
+                            dicc = {}
+                            if isinstance(elemento, dict):
+                                for llave in elemento.keys():
+                                    dicc[int(llave)] = elemento[llave]
+                                lista.append(dicc)
+                            else:
+                                lista.append(elemento)
+                        diccionario_auxiliar[key][int(key2)][key3][key4] = lista
+
+        return diccionario_auxiliar
+    
+    def guardar_resultados_estrategias(self, diccionario):
+        ruta = join("resultados_estrategias.json")
+        with open(ruta, "w") as archivo:
+            json.dump(diccionario, archivo)
+
+    def guardar_resultados_cambio_política(self, diccionario):
+        ruta = join("cambio_politica.json")
+        with open(ruta, 'w') as archivo:
+            json.dump(diccionario, archivo)

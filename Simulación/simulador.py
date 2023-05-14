@@ -116,10 +116,36 @@ class Simulador:
                 nueva_estrategia[key] = deepcopy(estrategia2[key])
         return nueva_estrategia
 
-    def simular_mejores_estrategias():
+    def simular_mejores_estrategias(self):
         diccionario_estrategias = ar("None").leer_estrategias()
+        lista_threads = []
+        simulaciones = []
+        for key in diccionario_estrategias.keys():
+            estrategia = Estrategia(diccionario_estrategias[key])
+            simulacion = Simulacion(estrategia)
+            simulaciones.append(simulacion)
+            thread = Thread(target=simulacion.simular_mejores_estrategias_multiples_veces)
+            thread.start()
+            lista_threads.append(thread)
+        for thread in lista_threads:
+            thread.join()
 
-        pass
+        for i in range (len(simulaciones)):
+            self.capacidades_camas_iteraciones[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].capacidades_camas
+            self.funciones_objetivos_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].funciones_objetivos
+            self.capacidades_promedio_camas[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].promedio_capacidades
+            self.costos_muertos_hospitales_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_muertos_hospitales_simulacion
+            self.costos_muertos_WL_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_espera_WL_simulacion
+            self.costos_derivaciones_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_derivacion_simulacion
+        diccionario = {}
+        diccionario['Funcion objetivo'] = self.funciones_objetivos_estrategias
+        diccionario['Capacidades promedio camas'] = self.capacidades_promedio_camas
+        diccionario['Costos muertos hospitales'] = self.costos_muertos_hospitales_estrategias
+        diccionario['Costos muertos WL'] = self.costos_muertos_WL_estrategias
+        diccionario['Costos derivaciones'] = self.costos_derivaciones_estrategias
+        ar('None').guardar_resultados_estrategias(diccionario)
+
+
 
 
 

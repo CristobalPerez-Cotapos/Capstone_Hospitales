@@ -2,6 +2,8 @@ import parametros_simulacion as ps
 import parametros_hospitales as ph
 from hospital import Hospital
 from sala_de_llegada import ListaDeEspera
+from funciones import Archivos as ar
+from estrategia import Estrategia
 import random
 random.seed(ps.SEED)
 
@@ -40,6 +42,11 @@ class Simulacion:
             self.simular()
             self.resetear_simulacion()
 
+    def simular_mejores_estrategias_multiples_veces(self):
+        for i in range(ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA):
+            self.simular()
+            self.resetear_simulacion()
+
     def simular(self):
         random.seed(ps.SEED * self.numero_ejecucion)
         for dia in range(self.dias_de_simulacion):
@@ -64,6 +71,46 @@ class Simulacion:
         
         self.capacidades_camas[self.numero_ejecucion] = self.capacidad_cama_por_simulacion
         self.promedio_capacidades[self.numero_ejecucion] = self.calcular_tasas_ocupacion()
+
+
+
+    def simular_cambio_estrategia(self):
+        random.seed(ps.SEED * self.numero_ejecucion)
+        self.costos_espera_WL = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}   
+        self.costos_derivacion = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}     
+        self.costos_muertos_hospitales = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}       
+        self.costos_diarios = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}
+        for dia in range(ps.DIAS_SIMULACION_CAMBIO):
+            if dia >= self.dias_de_simulacion - 1:
+                self.estrategia = Estrategia(ar('None').leer_estrategias()['Estrategia 8'])
+            for jornada in range(ps.JORNADAS_POR_DIAS):
+                for hospital in self.hospitales:
+                    hospital.simular_jornada()
+                jornada_actual = dia * 2 + jornada
+                self.lista_de_espera.simular_jornada()
+                self.trasladar_pacientes_lista_de_espera()
+                self.agregar_costos_jornada_hospitales_y_WL()
+                for hospital in self.hospitales:
+                    tasas_camas = hospital.revisar_capacidades_camas(self.dias_transcurridos)
+                    if tasas_camas != None:
+                        self.capacidad_cama_por_simulacion[self.jornadas_transcurridas] = tasas_camas
+                # print(f"Jornada {jornada+1} del dia {dia+1}")
+                # print("------------------------------------------------")
+                # self.imprimir_estado()
+                self.jornadas_transcurridas += 1
+            self.dias_transcurridos += 1
+        self.resultados.append(self.calcular_funcion_objetivo())
+        self.calcular_tasas_ocupacion()
+        
+        self.capacidades_camas[self.numero_ejecucion] = self.capacidad_cama_por_simulacion
+        self.promedio_capacidades[self.numero_ejecucion] = self.calcular_tasas_ocupacion()
+        diccionario = {}
+        diccionario['Costos WL'] = self.costos_espera_WL
+        diccionario['Costos muertos hospitales'] = self.costos_muertos_hospitales
+        diccionario['Costos derivaciones'] = self.costos_derivacion
+        diccionario['Costos diarios'] = self.costos_diarios
+        ar('None').guardar_resultados_cambio_política(diccionario)
+
                     
     def calcular_tasas_ocupacion(self):
         dicc_tasas = {"ED": 0, "ICU": 0, "SDU_WARD": 0, "GA": 0, "OR": 0}
