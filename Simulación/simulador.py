@@ -2,6 +2,7 @@ from simulacion import Simulacion
 from estrategia import Estrategia
 import parametros_simulacion as ps
 import random
+from funciones import Archivos as ar
 from threading import Thread
 random.seed(ps.SEED)
 from copy import deepcopy
@@ -98,6 +99,11 @@ class Simulador:
                 self.mejor_diccionario_estrategia = deepcopy(self.simulaciones[0].estrategia.parametros_estrategia)
                 self.estrategia = Estrategia(self.mejor_diccionario_estrategia)
 
+        diccionario_estrategias = {}
+        for simulacion_e in self.simulaciones[:5]:
+            diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = simulacion_e.estrategia.parametros_estrategia
+        
+        ar("None").guardar_estrategias(diccionario_estrategias)
         # print(f"Funcion objetivo: {mejor_valor}")
         # print(self.estrategia.parametros_estrategia)
 
@@ -109,6 +115,11 @@ class Simulador:
             else:
                 nueva_estrategia[key] = deepcopy(estrategia2[key])
         return nueva_estrategia
+
+    def simular_mejores_estrategias():
+        diccionario_estrategias = ar("None").leer_estrategias()
+
+        pass
 
 
 

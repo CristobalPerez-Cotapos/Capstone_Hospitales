@@ -232,3 +232,14 @@ class Archivos:
         self.hoja_fo.close()
         self.hoja_cc.close()
         self.hoja_cd.close()
+
+    def guardar_estrategias(self, diccionario):
+        ruta = join("estrategias.json")
+        with open(ruta, "w") as archivo:
+            json.dump(diccionario, archivo)
+    
+    def leer_estrategias(self):
+        ruta = join("estrategias.json")
+        with open(ruta, "r") as archivo:
+            diccionario = json.load(archivo)
+        return diccionario
