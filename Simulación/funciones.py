@@ -273,6 +273,17 @@ class Archivos:
         with open(ruta, "r") as archivo:
             diccionario = json.load(archivo)
         return diccionario
+    
+    def guardar_resultados_diarios(self, diccionario):
+        ruta = join("resultados_diarios_estrategias.json")
+        with open(ruta, "w") as archivo:
+            json.dump(diccionario, archivo)
+    
+    def leer_resultados_diarios(self):
+        ruta = join("resultados_diarios_estrategias.json")
+        with open(ruta, "r") as archivo:
+            diccionario = json.load(archivo)
+        return diccionario
     def guardar_resultados_cambio_política(self, diccionario):
         ruta = join("cambio_politica.json")
         with open(ruta, 'w') as archivo:

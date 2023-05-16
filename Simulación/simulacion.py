@@ -22,11 +22,15 @@ class Simulacion:
         self.resultados = []
         self.costos_espera_WL = {i : 0 for i in range(self.dias_de_simulacion)}   
         self.costos_derivacion = {i : 0 for i in range(self.dias_de_simulacion)}     
-        self.costos_muertos_hospitales = {i : 0 for i in range(self.dias_de_simulacion)}     
+        self.costos_muertos_hospitales = {i : 0 for i in range(self.dias_de_simulacion)}
+        self.costos_muertos_hospitales_diarios_simulacion = {}       
         self.costos_espera_WL_simulacion = {}     
         self.costos_derivacion_simulacion = {}     
         self.costos_muertos_hospitales_simulacion = {}     
         self.costos_diarios = {i : 0 for i in range(self.dias_de_simulacion)}
+        self.derivaciones = {j : {i : 0 for i in range(self.dias_de_simulacion)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.espera_WL = {j : {i : 0 for i in range(self.dias_de_simulacion)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.pacientes_esperando = {j : {i : {"ICU" : 0, "SDU_WARD" : 0, "OR" : 0, "GA" : 0} for i in range(self.dias_de_simulacion)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
         self.agregar_hospitales()
         self.funciones_objetivos = {}
         self.capacidades_camas = {}
@@ -61,10 +65,15 @@ class Simulacion:
                     tasas_camas = hospital.revisar_capacidades_camas(self.dias_transcurridos)
                     if tasas_camas != None:
                         self.capacidad_cama_por_simulacion[self.jornadas_transcurridas] = tasas_camas
-                if 55 < dia < 95:
-                    print(f"Jornada {jornada+1} del dia {dia+1}")
-                    print("------------------------------------------------")
-                    self.imprimir_estado()
+                self.espera_WL[self.numero_ejecucion][self.dias_transcurridos] += len(self.lista_de_espera.pacientes_atendidos)
+                for hospital in self.hospitales:
+                    for unidad in hospital.lista_de_unidades:
+                        if unidad.codigo != 'ED':
+                            self.pacientes_esperando[self.numero_ejecucion][self.dias_transcurridos][unidad.codigo] += unidad.total_de_pacientes_atendidos
+
+                # print(f"Jornada {jornada+1} del dia {dia+1}")
+                # print("------------------------------------------------")
+                # self.imprimir_estado()
                 self.jornadas_transcurridas += 1
             self.dias_transcurridos += 1
         self.resultados.append(self.calcular_funcion_objetivo())
@@ -95,6 +104,8 @@ class Simulacion:
                     tasas_camas = hospital.revisar_capacidades_camas(self.dias_transcurridos)
                     if tasas_camas != None:
                         self.capacidad_cama_por_simulacion[self.jornadas_transcurridas] = tasas_camas
+                self.espera_WL[self.numero_ejecucion][self.dias_transcurridos] += self.lista_de_espera.pacientes_atendidos
+
                 # print(f"Jornada {jornada+1} del dia {dia+1}")
                 # print("------------------------------------------------")
                 # self.imprimir_estado()
@@ -139,15 +150,26 @@ class Simulacion:
     def trasladar_pacientes_lista_de_espera(self):
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
         for paciente in pacientes_listos:
+            
             puntaje, hospital = self.generar_puntaje_paciente(paciente)
+            ruta = paciente.ruta_paciente[1]
+            for unidad in hospital.lista_de_unidades:
+                if unidad.codigo == ruta:
+                    unidad_paciente = unidad
             if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
                 self.lista_de_espera.retirar_paciente(paciente)
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()
+            elif hospital.admision.camas_disponibles > 0 and unidad_paciente.camas_disponibles > 6:
+                self.lista_de_espera.retirar_paciente(paciente)
+                hospital.admision.agregar_paciente(paciente)
+                hospital.desplazamiento_entre_unidades()
             elif puntaje < 0:
+                self.derivaciones[self.numero_ejecucion][self.dias_transcurridos] += 1
                 self.derivar_paciente(paciente)
             else:
                 if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
+                    self.derivaciones[self.numero_ejecucion][self.dias_transcurridos] += 1
                     self.derivar_paciente(paciente)
 
     def derivar_paciente(self, paciente, ED = False):
@@ -191,6 +213,7 @@ class Simulacion:
         muestra_deri = []
         muestra_WL = []
         muestra_muer = []
+        self.costos_muertos_hospitales_diarios_simulacion[self.numero_ejecucion] = self.costos_muertos_hospitales
         for i in ps.ID_DIAS_MUESTRAS:
             muestra.append(self.costos_diarios[i])
             muestra_deri.append(self.costos_derivacion[i])
