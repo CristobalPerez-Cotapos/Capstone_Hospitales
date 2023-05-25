@@ -48,7 +48,7 @@ class Simulacion:
 
     def simular_mejores_estrategias_multiples_veces(self):
         for i in range(ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA):
-            self.simular()
+            self.simular_cambio_estrategia()
             self.resetear_simulacion()
 
     def simular(self):
@@ -90,9 +90,13 @@ class Simulacion:
         self.costos_derivacion = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}     
         self.costos_muertos_hospitales = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}       
         self.costos_diarios = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}
+        self.derivaciones = {j : {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.espera_WL = {j : {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.pacientes_esperando = {j : {i : {"ICU" : 0, "SDU_WARD" : 0, "OR" : 0, "GA" : 0} for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        
         for dia in range(ps.DIAS_SIMULACION_CAMBIO):
             if dia >= self.dias_de_simulacion - 1:
-                self.estrategia = Estrategia(ar('None').leer_estrategias()['Estrategia 243'])
+                self.estrategia = Estrategia(ar('None').leer_estrategias()['Estrategia 1'])
             for jornada in range(ps.JORNADAS_POR_DIAS):
                 for hospital in self.hospitales:
                     hospital.simular_jornada()
@@ -104,7 +108,11 @@ class Simulacion:
                     tasas_camas = hospital.revisar_capacidades_camas(self.dias_transcurridos)
                     if tasas_camas != None:
                         self.capacidad_cama_por_simulacion[self.jornadas_transcurridas] = tasas_camas
-                self.espera_WL[self.numero_ejecucion][self.dias_transcurridos] += self.lista_de_espera.pacientes_atendidos
+                self.espera_WL[self.numero_ejecucion][self.dias_transcurridos] += len(self.lista_de_espera.pacientes_atendidos)
+                for hospital in self.hospitales:
+                    for unidad in hospital.lista_de_unidades:
+                        if unidad.codigo != 'ED':
+                            self.pacientes_esperando[self.numero_ejecucion][self.dias_transcurridos][unidad.codigo] += unidad.total_de_pacientes_atendidos
 
                 # print(f"Jornada {jornada+1} del dia {dia+1}")
                 # print("------------------------------------------------")
@@ -121,7 +129,7 @@ class Simulacion:
         diccionario['Costos muertos hospitales'] = self.costos_muertos_hospitales
         diccionario['Costos derivaciones'] = self.costos_derivacion
         diccionario['Costos diarios'] = self.costos_diarios
-        ar('None').guardar_resultados_cambio_política(diccionario)
+        #ar('None').guardar_resultados_cambio_política(diccionario)
 
                     
     def calcular_tasas_ocupacion(self):

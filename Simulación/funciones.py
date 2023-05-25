@@ -233,11 +233,6 @@ class Archivos:
         self.hoja_cc.close()
         self.hoja_cd.close()
 
-    def guardar_estrategias(self, diccionario):
-        ruta = join("estrategias.json")
-        with open(ruta, "w") as archivo:
-            json.dump(diccionario, archivo)
-    
     def leer_estrategias(self):
         ruta = join("estrategias.json")
         with open(ruta, "r") as archivo:
@@ -262,29 +257,17 @@ class Archivos:
                         diccionario_auxiliar[key][int(key2)][key3][key4] = lista
 
         return diccionario_auxiliar
-    
-    def guardar_resultados_estrategias(self, diccionario):
-        ruta = join("resultados_estrategias.json")
-        with open(ruta, "w") as archivo:
-            json.dump(diccionario, archivo)
 
-    def leer_resultados_estrategias(self):
-        ruta = join("resultados_estrategias.json")
+
+    def leer_resultados(self, nombre_archivo):
+        #ruta = join("resultados_estrategias.json")
+        #ruta = join("resultados_diarios_estrategias.json")
+        ruta = join(nombre_archivo)
         with open(ruta, "r") as archivo:
             diccionario = json.load(archivo)
         return diccionario
     
-    def guardar_resultados_diarios(self, diccionario):
-        ruta = join("resultados_diarios_estrategias.json")
-        with open(ruta, "w") as archivo:
-            json.dump(diccionario, archivo)
-    
-    def leer_resultados_diarios(self):
-        ruta = join("resultados_diarios_estrategias.json")
-        with open(ruta, "r") as archivo:
-            diccionario = json.load(archivo)
-        return diccionario
-    def guardar_resultados_cambio_política(self, diccionario):
-        ruta = join("cambio_politica.json")
+    def guardar_resultados(self, diccionario, nombre_archivo):
+        ruta = join(nombre_archivo)
         with open(ruta, 'w') as archivo:
             json.dump(diccionario, archivo)

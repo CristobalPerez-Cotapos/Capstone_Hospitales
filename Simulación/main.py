@@ -19,7 +19,7 @@ random.seed(ps.SEED)
 
 estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PROVISORIOS)
 simulacion = Simulador(estrategia)
-simulacion.simular_mejores_estrategias()
+simulacion.simular_cambio_estrategia()
 # print(simulacion.capacidad_cama_por_simulacion)
 # print(simulacion.costos_derivacion_simulacion)
 # print(simulacion.costos_espera_WL_simulacion)

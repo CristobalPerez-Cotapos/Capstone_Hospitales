@@ -108,7 +108,7 @@ class Simulador:
         for simulacion_e in self.simulaciones[:5]:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = simulacion_e.estrategia.parametros_estrategia
         
-        ar("None").guardar_estrategias(diccionario_estrategias)
+        ar("None").guardar_resultados(diccionario_estrategias, "estrategias.json")   # guarda las mejores estrategias en un diccionario
         # print(f"Funcion objetivo: {mejor_valor}")
         # print(self.estrategia.parametros_estrategia)
 
@@ -135,19 +135,6 @@ class Simulador:
         for thread in lista_threads:
             thread.join()
 
-        # for i in range (len(simulaciones)):
-        #     self.capacidades_camas_iteraciones[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].capacidades_camas
-        #     self.funciones_objetivos_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].funciones_objetivos
-        #     self.capacidades_promedio_camas[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].promedio_capacidades
-        #     self.costos_muertos_hospitales_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_muertos_hospitales_simulacion
-        #     self.costos_muertos_WL_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_espera_WL_simulacion
-        #     self.costos_derivaciones_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_derivacion_simulacion
-        # diccionario = {}
-        # diccionario['Funcion objetivo'] = self.funciones_objetivos_estrategias
-        # diccionario['Capacidades promedio camas'] = self.capacidades_promedio_camas
-        # diccionario['Costos muertos hospitales'] = self.costos_muertos_hospitales_estrategias
-        # diccionario['Costos muertos WL'] = self.costos_muertos_WL_estrategias
-        # diccionario['Costos derivaciones'] = self.costos_derivaciones_estrategias
         for i in range (len(simulaciones)):
             self.costos_muertos_hospitales_diarios_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_muertos_hospitales_diarios_simulacion
             self.espera_WL_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].espera_WL
@@ -160,9 +147,66 @@ class Simulador:
         diccionario['Espera WL'] = self.espera_WL_estrategias
         diccionario['Derivaciones'] = self.derivaciones_estrategias
         diccionario['Pacientes esperando'] = self.pacientes_atendidos_estrategias
-        ar('None').guardar_resultados_diarios(diccionario)
 
 
+        diccionario_resultados = {}
+
+        for i in range (len(simulaciones)):
+            self.capacidades_camas_iteraciones[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].capacidades_camas
+            self.funciones_objetivos_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].funciones_objetivos
+            self.capacidades_promedio_camas[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].promedio_capacidades
+            self.costos_muertos_hospitales_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_muertos_hospitales_simulacion
+            self.costos_muertos_WL_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_espera_WL_simulacion
+            self.costos_derivaciones_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_derivacion_simulacion
+
+        diccionario_resultados['Capacidades promedio camas'] = self.capacidades_promedio_camas
+        diccionario_resultados['Función objetivo'] = self.funciones_objetivos_estrategias
+        diccionario_resultados['Costos muertos WL'] = self.costos_muertos_WL_estrategias
+        diccionario_resultados['Costos muertos hospitales'] = self.costos_muertos_hospitales_estrategias
+        diccionario_resultados['Costos derivaciones'] = self.costos_derivaciones_estrategias
+
+
+        cambio_politica = True             # IMPORTANTE: Este valor lo cambiamos entre True y False dependiendo de si estamos simulando las mejores estrategias o estamos viendo el cambio de política con estas
+
+        if not cambio_politica:
+            ar('None').guardar_resultados(diccionario, "resultados_diarios_estrategias.json")
+            ar('None').guardar_resultados(diccionario_resultados, "resultados_estrategias.json")
+        
+        else:
+            ar('None').guardar_resultados(diccionario, "resultados_cambio_politica_diarios.json")
+            ar('None').guardar_resultados(diccionario_resultados, "resultados_cambio_politica.json")
+            
+        # ar('None').guardar_resultados(diccionario, "resultados_estrategias.json")   #### guarda los resultados de las mejores estrategias
+
+    # def simular_cambio_politicas(self):
+    #     diccionario_estrategias = ar("None").leer_estrategias()
+    #     lista_threads = []
+    #     simulaciones = []
+    #     for key in diccionario_estrategias.keys():
+    #         estrategia = Estrategia(diccionario_estrategias[key])
+    #         simulacion = Simulacion(estrategia)
+    #         simulaciones.append(simulacion)
+    #         thread = Thread(target=simulacion.simular_mejores_estrategias_multiples_veces)
+    #         thread.start()
+    #         lista_threads.append(thread)
+    #     for thread in lista_threads:
+    #         thread.join()
+
+    #     for i in range (len(simulaciones)):
+    #         self.costos_muertos_hospitales_diarios_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_muertos_hospitales_diarios_simulacion
+    #         self.espera_WL_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].espera_WL
+    #         self.derivaciones_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].derivaciones
+    #         self.pacientes_atendidos_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].pacientes_esperando
+
+        
+    #     diccionario = {}
+    #     diccionario['Costos muertos diarios'] = self.costos_muertos_hospitales_diarios_estrategias
+    #     diccionario['Espera WL'] = self.espera_WL_estrategias
+    #     diccionario['Derivaciones'] = self.derivaciones_estrategias
+    #     diccionario['Pacientes esperando'] = self.pacientes_atendidos_estrategias
+    #     ar('None').guardar_resultados(diccionario, 'resultados_cambio_politica_diarios.json')
+
+        
 
 
 
