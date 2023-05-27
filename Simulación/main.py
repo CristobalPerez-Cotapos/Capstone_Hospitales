@@ -4,7 +4,7 @@ import random
 from paciente import Paciente
 from estrategia import Estrategia
 from simulador import Simulador
-import respaldo as r
+#import respaldo as r
 from cargar_datos import leer_parametros
 from funciones import Archivos as ar
 from analisis_resultados import Analisis
@@ -17,9 +17,9 @@ random.seed(ps.SEED)
 # simulacion.simular_mejores_estrategias()
 
 
-estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PROVISORIOS)
+estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PRINCIPALES, ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS)
 simulacion = Simulador(estrategia)
-simulacion.simular_cambio_estrategia()
+simulacion.simular()
 # print(simulacion.capacidad_cama_por_simulacion)
 # print(simulacion.costos_derivacion_simulacion)
 # print(simulacion.costos_espera_WL_simulacion)

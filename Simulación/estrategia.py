@@ -5,8 +5,9 @@ class Estrategia:
 
     id = 0
 
-    def __init__(self, parametros_estrategia:dict):
+    def __init__(self, parametros_estrategia:dict, parametros_secundarios:dict):
         self.parametros_estrategia = parametros_estrategia
+        self.parametros_secundarios = parametros_secundarios
         self.id = Estrategia.id
         Estrategia.id += 1
 
@@ -67,7 +68,6 @@ class Estrategia:
         else:
             nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] + rd.uniform(-20, 20)
         return nueva_estrategia
-
     
     def mutar_estrategia_debil(self):
         nueva_estrategia = deepcopy(self.parametros_estrategia)
@@ -94,6 +94,20 @@ class Estrategia:
             nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] + rd.uniform(-2, 2)
         return nueva_estrategia
 
+    def mutar_parametros_secundarios(self):
+        nueva_estrategia = deepcopy(self.parametros_secundarios)
+        llave = rd.choice(list(nueva_estrategia.keys()))
+        hospital = rd.choice(list(nueva_estrategia[llave].keys()))
+
+        if llave == "BUFFER":
+            nueva_estrategia[llave][hospital] = nueva_estrategia[llave][hospital] + rd.uniform(-2, 2)
+
+        elif llave == "NUMERO INICIO POLITICA":
+            nueva_estrategia[llave][hospital] = max(nueva_estrategia[llave][hospital] + rd.randint(-2, 2), 0)
+
+        return nueva_estrategia
+
+        
 
         
 

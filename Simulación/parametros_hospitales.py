@@ -4,9 +4,6 @@ PARAMETROS = Parametros()
 
 VALOR_RIESGO = PARAMETROS.editar_diccionario("VALOR_RIESGO")
 
-
-
-
 PROBABILIDADES_DE_TRANSICION = {
     5: {
         "WL": {"GA": 100},
@@ -198,8 +195,6 @@ TASA_LLEGADA_HOSPITAL = {
             8: 5.41
         }
 }
-
-
 
 CAMAS_POR_UNIDAD = {
     'H_1' :{'GA': 12, 'ED': 41, 'SDU_WARD': 245, 'OR': 9, 'ICU': 50},

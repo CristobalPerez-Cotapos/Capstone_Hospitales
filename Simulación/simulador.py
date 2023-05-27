@@ -35,23 +35,24 @@ class Simulador:
     
     def generar_nueva_estrategia(self):
         aleatorio = random.random()
-        if aleatorio < 0.15:
-            return self.estrategia.mutar_estrategia_fuerte()
+        if aleatorio < 0.10:
+            return (self.estrategia.mutar_estrategia_fuerte(), deepcopy(self.estrategia.parametros_secundarios))
         elif aleatorio < 0.4:
-            return self.estrategia.mutar_estrategia_muy_debil()
-        elif aleatorio < 0.8:
-            return self.estrategia.mutar_estrategia_media()
-        return self.estrategia.mutar_estrategia_debil()
+            return (self.estrategia.mutar_estrategia_muy_debil(), deepcopy(self.estrategia.parametros_secundarios))
+        elif aleatorio < 0.7:
+            return (self.estrategia.mutar_estrategia_debil(), deepcopy(self.estrategia.parametros_secundarios))
+        elif aleatorio < 0.9:
+            return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
+        else:
+            return (self.estrategia.parametros_estrategia, self.estrategia.mutar_parametros_secundarios())
     
     def simular(self):
         lista_threads = []
         simulacion = self.crear_simulacion()
-        #print(f"Funcion objetivo: {simulacion.promedio_resultados()} solucion original")
-        self.estrategia_base = simulacion
         self.simulaciones.append(simulacion)
         for i in range(ps.NUMERO_SIMULACIONES_PARALELAS):
             estrtegia = self.generar_nueva_estrategia()
-            estrtegia = Estrategia(estrtegia)
+            estrtegia = Estrategia(estrtegia[0], estrtegia[1])
             simulacion = Simulacion(estrtegia)
             self.simulaciones.append(simulacion)
             thread = Thread(target=simulacion.simular_miltiples_veces)
@@ -69,7 +70,8 @@ class Simulador:
             lista_threads = []
             for j in range(3):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
-                nuva_estrategia = Estrategia(nuva_estrategia)
+                parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
+                nuva_estrategia = Estrategia(nuva_estrategia, parametros_secundarios)
                 simulacion = Simulacion(nuva_estrategia)
                 self.simulaciones[j] = simulacion
                 thread = Thread(target=simulacion.simular_miltiples_veces)
@@ -77,7 +79,7 @@ class Simulador:
                 lista_threads.append(thread)
             for j in range(3, ps.NUMERO_SIMULACIONES_PARALELAS):
                 estrtegia = self.generar_nueva_estrategia()
-                estrtegia = Estrategia(estrtegia)
+                estrtegia = Estrategia(estrtegia[0], estrtegia[1])
                 simulacion = Simulacion(estrtegia)
                 self.simulaciones[j] = simulacion
                 thread = Thread(target=simulacion.simular_miltiples_veces)
@@ -93,7 +95,8 @@ class Simulador:
             if self.simulaciones[0].promedio_resultados() < mejor_valor:
                 mejor_valor = self.simulaciones[0].promedio_resultados()
                 self.mejor_diccionario_estrategia = deepcopy(self.simulaciones[0].estrategia.parametros_estrategia)
-                self.estrategia = Estrategia(self.mejor_diccionario_estrategia)
+                self.mejores_parametros_secundarios = deepcopy(self.simulaciones[0].estrategia.parametros_secundarios)
+                self.estrategia = Estrategia(self.mejor_diccionario_estrategia, self.mejores_parametros_secundarios)
     
 
         for i in range (len(self.simulaciones)):

@@ -36,6 +36,7 @@ class Simulacion:
         self.capacidades_camas = {}
         self.capacidad_cama_por_simulacion = {}
         self.promedio_capacidades = {}
+
     def agregar_hospitales(self):
         for i in range(ps.NUMERO_HOSPITALES):
             hospital = Hospital(f"H_{i+1}", simulacion=self)
@@ -57,7 +58,6 @@ class Simulacion:
             for jornada in range(ps.JORNADAS_POR_DIAS):
                 for hospital in self.hospitales:
                     hospital.simular_jornada()
-                jornada_actual = dia * 2 + jornada
                 self.lista_de_espera.simular_jornada()
                 self.trasladar_pacientes_lista_de_espera()
                 self.agregar_costos_jornada_hospitales_y_WL()
@@ -81,8 +81,6 @@ class Simulacion:
         
         self.capacidades_camas[self.numero_ejecucion] = self.capacidad_cama_por_simulacion
         self.promedio_capacidades[self.numero_ejecucion] = self.calcular_tasas_ocupacion()
-
-
 
     def simular_cambio_estrategia(self):
         random.seed(ps.SEED * self.numero_ejecucion)
@@ -130,7 +128,6 @@ class Simulacion:
         diccionario['Costos derivaciones'] = self.costos_derivacion
         diccionario['Costos diarios'] = self.costos_diarios
         #ar('None').guardar_resultados_cambio_política(diccionario)
-
                     
     def calcular_tasas_ocupacion(self):
         dicc_tasas = {"ED": 0, "ICU": 0, "SDU_WARD": 0, "GA": 0, "OR": 0}
@@ -140,7 +137,6 @@ class Simulacion:
         for unidad in dicc_tasas.keys():
             dicc_tasas[unidad] = dicc_tasas[unidad] / (ps.MUESTRAS_POR_SIMULACION * 2)
         return dicc_tasas
-
 
     def agregar_costos_jornada_hospitales_y_WL(self):
         for hospital in self.hospitales:
@@ -153,7 +149,6 @@ class Simulacion:
         self.costos_diarios[self.dias_transcurridos] += costos_muertos
         self.costos_espera_WL[self.dias_transcurridos] += costos_muertos
         self.costos_muertos_WL += costos_muertos
-
 
     def trasladar_pacientes_lista_de_espera(self):
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
@@ -168,7 +163,8 @@ class Simulacion:
                 self.lista_de_espera.retirar_paciente(paciente)
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()
-            elif hospital.admision.camas_disponibles > 0 and unidad_paciente.camas_disponibles > 6:
+            elif (hospital.admision.camas_disponibles > 0 
+                  and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre]):
                 self.lista_de_espera.retirar_paciente(paciente)
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()

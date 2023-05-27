@@ -4,6 +4,7 @@ from paciente import Paciente
 import parametros_hospitales as ph
 import parametros_simulacion as ps
 random.seed(ps.SEED)
+from copy import deepcopy, copy
 
 class SalaDeLLegada(ABC):
 
@@ -59,7 +60,7 @@ class ListaDeEspera(SalaDeLLegada):
                     self.total_de_pacientes_para_ingresar += 1
 
     def pacientes_listos_para_trasladar(self, unidad):
-        return self.pacientes_atendidos
+        return copy(self.pacientes_atendidos)
     
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)
@@ -144,7 +145,8 @@ class Urgencias(SalaDeLLegada):
             ############ Falta que el paciente sepa a que hospital va #################
             puntaje, hospital = self.simuacion.generar_puntaje_paciente(paciente)
             #print(f"El paciente tiene un puntaje de {puntaje} y las camas disponibles son {self.camas_disponibles}")
-            if self.camas_disponibles > 0 and puntaje > 0:
+            if self.camas_disponibles > 0 and puntaje > self.simuacion.estrategia.parametros_secundarios["BUFFER"][hospital.nombre]:
+                                              ## En vez de 0, usamo el buffer propio de este hospital para considerar los costos de traslado
                 self.pacientes.append(paciente)
                 self.cantidad_de_pacientes_por_grupo_en_atencion[grupo_diagnostico] += 1
                 self.total_de_pacientes += 1
