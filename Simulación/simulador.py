@@ -6,6 +6,9 @@ from funciones import Archivos as ar
 from threading import Thread
 random.seed(ps.SEED)
 from copy import deepcopy
+import concurrent.futures
+import multiprocessing
+import math
 
 class Simulador:
 
@@ -50,16 +53,17 @@ class Simulador:
         lista_threads = []
         simulacion = self.crear_simulacion()
         self.simulaciones.append(simulacion)
-        for i in range(ps.NUMERO_SIMULACIONES_PARALELAS):
-            estrtegia = self.generar_nueva_estrategia()
-            estrtegia = Estrategia(estrtegia[0], estrtegia[1])
-            simulacion = Simulacion(estrtegia)
-            self.simulaciones.append(simulacion)
-            thread = Thread(target=simulacion.simular_miltiples_veces)
-            thread.start()
-            lista_threads.append(thread)
-        for thread in lista_threads:
-            thread.join()
+        desired_workers = math.ceil(multiprocessing.cpu_count() * 0.5)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=desired_workers) as executor:
+            for i in range(ps.NUMERO_SIMULACIONES_PARALELAS):
+                estrtegia = self.generar_nueva_estrategia()
+                estrtegia = Estrategia(estrtegia[0], estrtegia[1])
+                simulacion = Simulacion(estrtegia)
+                self.simulaciones.append(simulacion)
+                thread = executor.submit(simulacion.simular_miltiples_veces)
+                lista_threads.append(thread)
+        concurrent.futures.wait(lista_threads)
+
 
         self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
         print(f"Funcion objetivo: {self.simulaciones[0].promedio_resultados()} iteracion 0")
@@ -68,25 +72,28 @@ class Simulador:
 
         for i in range(15):
             lista_threads = []
-            for j in range(3):
-                nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
-                parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
-                nuva_estrategia = Estrategia(nuva_estrategia, parametros_secundarios)
-                simulacion = Simulacion(nuva_estrategia)
-                self.simulaciones[j] = simulacion
-                thread = Thread(target=simulacion.simular_miltiples_veces)
-                thread.start()
-                lista_threads.append(thread)
-            for j in range(3, ps.NUMERO_SIMULACIONES_PARALELAS):
-                estrtegia = self.generar_nueva_estrategia()
-                estrtegia = Estrategia(estrtegia[0], estrtegia[1])
-                simulacion = Simulacion(estrtegia)
-                self.simulaciones[j] = simulacion
-                thread = Thread(target=simulacion.simular_miltiples_veces)
-                thread.start()
-                lista_threads.append(thread)
-            for thread in lista_threads:
-                thread.join()
+            desired_workers = math.ceil(multiprocessing.cpu_count() * 0.5)
+            with concurrent.futures.ProcessPoolExecutor(max_workers=desired_workers) as executor:
+                for j in range(3):
+                    nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
+                    parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
+                    nuva_estrategia = Estrategia(nuva_estrategia, parametros_secundarios)
+                    simulacion = Simulacion(nuva_estrategia)
+                    self.simulaciones[j] = simulacion
+                    executor = concurrent.futures.ProcessPoolExecutor()
+                    num_nucleos = executor._max_workers
+                    thread = executor.submit(simulacion.simular_miltiples_veces)
+                    lista_threads.append(thread)
+                for j in range(3, ps.NUMERO_SIMULACIONES_PARALELAS):
+                    estrtegia = self.generar_nueva_estrategia()
+                    estrtegia = Estrategia(estrtegia[0], estrtegia[1])
+                    simulacion = Simulacion(estrtegia)
+                    self.simulaciones[j] = simulacion
+                    executor = concurrent.futures.ProcessPoolExecutor()
+                    num_nucleos = executor._max_workers
+                    thread = executor.submit(simulacion.simular_miltiples_veces)
+                    lista_threads.append(thread)
+            concurrent.futures.wait(lista_threads)
 
             self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
@@ -111,7 +118,7 @@ class Simulador:
             self.costos_muertos_WL_estrategias[f"Estrategia {self.simulaciones[i].estrategia.id}"] = self.simulaciones[i].costos_espera_WL_simulacion
             self.costos_derivaciones_estrategias[f"Estrategia {self.simulaciones[i].estrategia.id}"] = self.simulaciones[i].costos_derivacion_simulacion
         diccionario_estrategias = {}
-        diccionario_estrategias[f"Estrategia Inicial"] = ps.PARAMETROS_ESTRATEGIA_PROVISORIOS
+        diccionario_estrategias[f"Estrategia Inicial"] = ps.PARAMETROS_ESTRATEGIA_PRINCIPALES
         for simulacion_e in self.simulaciones[:5]:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = simulacion_e.estrategia.parametros_estrategia
         
@@ -132,15 +139,15 @@ class Simulador:
         diccionario_estrategias = ar("None").leer_estrategias()
         lista_threads = []
         simulaciones = []
-        for key in diccionario_estrategias.keys():
-            estrategia = Estrategia(diccionario_estrategias[key])
-            simulacion = Simulacion(estrategia)
-            simulaciones.append(simulacion)
-            thread = Thread(target=simulacion.simular_mejores_estrategias_multiples_veces)
-            thread.start()
-            lista_threads.append(thread)
-        for thread in lista_threads:
-            thread.join()
+        desired_workers = math.ceil(multiprocessing.cpu_count() * 0.5)
+        with concurrent.futures.ProcessPoolExecutor(max_workers=desired_workers) as executor:
+            for key in diccionario_estrategias.keys():
+                estrategia = Estrategia(diccionario_estrategias[key])
+                simulacion = Simulacion(estrategia)
+                simulaciones.append(simulacion)
+                thread = executor.submit(simulacion.simular_miltiples_veces)
+                lista_threads.append(thread)
+        concurrent.futures.wait(lista_threads)
 
         for i in range (len(simulaciones)):
             self.costos_muertos_hospitales_diarios_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].costos_muertos_hospitales_diarios_simulacion
