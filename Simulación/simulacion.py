@@ -36,6 +36,7 @@ class Simulacion:
         self.capacidades_camas = {}
         self.capacidad_cama_por_simulacion = {}
         self.promedio_capacidades = {}
+        self.costos_traslado = {}
 
     def agregar_hospitales(self):
         for i in range(ps.NUMERO_HOSPITALES):
@@ -189,12 +190,14 @@ class Simulacion:
             self.costos_diarios[self.dias_transcurridos] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.costos_derivacion[self.dias_transcurridos] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
 
-    def generar_puntaje_paciente(self, paciente):
+    def generar_puntaje_paciente(self, paciente, hospital_actual_ED=""):
         max_puntaje = -1000000000000000000
         for hospital in self.hospitales:
             datos = self.recopilar_informacion()[hospital.nombre]
             datos_WL = self.recopilar_informacion()["WL"]
             puntaje = self.estrategia.generar_punteje_paciente(paciente, datos, datos_WL, hospital.nombre)
+            if hospital.nombre == hospital_actual_ED:
+                puntaje += self.estrategia.parametros_secundarios["BUFFER"][hospital.nombre]
             if puntaje > max_puntaje:
                 max_puntaje = puntaje
                 hospital_asignado = hospital
@@ -217,12 +220,14 @@ class Simulacion:
         muestra_deri = []
         muestra_WL = []
         muestra_muer = []
+        muestra_traslado = []
         self.costos_muertos_hospitales_diarios_simulacion[self.numero_ejecucion] = self.costos_muertos_hospitales
         for i in ps.ID_DIAS_MUESTRAS:
             muestra.append(self.costos_diarios[i])
             muestra_deri.append(self.costos_derivacion[i])
             muestra_WL.append(self.costos_espera_WL[i])
             muestra_muer.append(self.costos_muertos_hospitales[i])
+            muestra_traslado.append(self.costos_traslado[i])
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
@@ -233,9 +238,11 @@ class Simulacion:
         promedio_WL = sum(muestra_WL) / len(muestra_WL)
         promedio_deri = sum(muestra_deri) / len(muestra_deri)
         promedio_muer = sum(muestra_muer) / len(muestra_muer)
+        promedio_traslado = sum(muestra_traslado) / len(muestra_traslado)
         self.costos_espera_WL_simulacion[f"Simulación {self.numero_ejecucion}"] = promedio_WL
         self.costos_derivacion_simulacion[f"Simulación {self.numero_ejecucion}"] = promedio_deri
         self.costos_muertos_hospitales_simulacion[f"Simulación {self.numero_ejecucion}"] = promedio_muer
+        ######## agregar del traslado##########
         self.funciones_objetivos[self.numero_ejecucion] = promedio
         print(f"Promedio diario: {promedio}")
         return promedio
@@ -258,3 +265,12 @@ class Simulacion:
 
     def promedio_resultados(self):
         return sum(self.resultados)/len(self.resultados)
+    
+    def trasladar_paciente(self, paciente, hospital):
+        print(f"El paciente {paciente.id} se traslada al hospital {hospital.nombre}")
+        if hospital.urgencias.camas_disponibles > 0:
+            hospital.urgencias.agregar_paciente(paciente)
+            self.costos_traslado[self.dias_transcurridos] += ph.COSTOS_TRASLADO[paciente.ruta_paciente[0]][paciente.grupo_diagnostico]
+            self.costos_diarios[self.dias_transcurridos] += ph.COSTOS_TRASLADO[paciente.ruta_paciente[0]][paciente.grupo_diagnostico]
+        else:
+            self.derivar_paciente(paciente, ED=True)

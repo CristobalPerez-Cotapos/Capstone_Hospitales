@@ -105,6 +105,10 @@ class Estrategia:
         elif llave == "NUMERO INICIO POLITICA":
             nueva_estrategia[llave][hospital] = max(nueva_estrategia[llave][hospital] + rd.randint(-2, 2), 0)
 
+        elif llave == "NUMERO INICIO POLITICA ED":
+            nueva_estrategia[llave][hospital] = max(nueva_estrategia[llave][hospital] + rd.randint(-2, 2), 0)
+
+
         return nueva_estrategia
 
         

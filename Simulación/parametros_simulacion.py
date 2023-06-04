@@ -235,7 +235,13 @@ PARAMETROS_ESTRATEGIA_SECUNDARIOS = {
         "H_1": 6,
         "H_2": 6,
         "H_3": 6,
-    }
+    },
+
+     "NUMERO INICIO POLITICA ED": {
+         "H_1": 1,
+         "H_2": 1,
+         "H_3": 1,
+     },
 }
     
     

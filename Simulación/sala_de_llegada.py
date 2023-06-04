@@ -141,17 +141,28 @@ class Urgencias(SalaDeLLegada):
         # Ordenar pacientes por costo de derivación
         nuevos_pacientes = sorted(nuevos_pacientes, key=lambda x: ph.COSTOS_DERIVACION[paciente.ruta_paciente[0]][grupo_diagnostico], reverse=True)
         #print(f"Se han generado {len(nuevos_pacientes)} nuevos pacientes")
+
         for paciente in nuevos_pacientes:
-            ############ Falta que el paciente sepa a que hospital va #################
-            puntaje, hospital = self.simuacion.generar_puntaje_paciente(paciente)
-            #print(f"El paciente tiene un puntaje de {puntaje} y las camas disponibles son {self.camas_disponibles}")
-            if self.camas_disponibles > 0 and puntaje > self.simuacion.estrategia.parametros_secundarios["BUFFER"][hospital.nombre]:
-                                              ## En vez de 0, usamo el buffer propio de este hospital para considerar los costos de traslado
-                self.pacientes.append(paciente)
-                self.cantidad_de_pacientes_por_grupo_en_atencion[grupo_diagnostico] += 1
-                self.total_de_pacientes += 1
+            unidad_destino = paciente.ruta_paciente[0]
+            for i in self.simuacion.hospitales:
+                if i.nombre == self.hospital:
+                    for j in i.lista_de_unidades:
+                        if j.codigo == unidad_destino:
+                            unidad_destino = j
+                            break
+
+            if unidad_destino.camas_disponibles < self.simuacion.estrategia.parametros_secundarios["NUMERO INICIO POLITICA ED"][self.hospital]:
+                
+                puntaje, hospital = self.simuacion.generar_puntaje_paciente(paciente, hospital_actual_ED=self.hospital)
+                if self.camas_disponibles > 0 and hospital.nombre == self.hospital:
+                                                ## En vez de 0, usamo el buffer propio de este hospital para considerar los costos de traslado
+                    self.agregar_paciente(paciente)
+                elif puntaje > 0:
+                    self.simuacion.trasladar_paciente(paciente, hospital)
+                else:
+                    self.simuacion.derivar_paciente(paciente, ED=True)
             else:
-                self.simuacion.derivar_paciente(paciente, ED=True)
+                self.agregar_paciente(paciente)
 
     def retirar_paciente(self, paciente):
         self.pacientes.remove(paciente)
@@ -171,6 +182,12 @@ class Urgencias(SalaDeLLegada):
         return (self.cantidad_de_pacientes_por_grupo_en_atencion,
                self.cantidad_de_pacientes_por_grupo_atendidos,
                self.camas_disponibles)
+    
+    def agregar_paciente(self, paciente):
+        self.pacientes.append(paciente)
+        self.cantidad_de_pacientes_por_grupo_en_atencion[paciente.grupo_diagnostico] += 1
+        self.total_de_pacientes += 1 
+
 
     def __str__(self):
         text = f"Urgencias Hospital {self.hospital[-1]}, total de pacientes: {self.total_de_pacientes}, camas disponibles: {self.camas_disponibles}"
