@@ -8,7 +8,7 @@ import random
 random.seed(ps.SEED)
 
 class Simulacion:
-    def __init__(self, estrategia):
+    def __init__(self, estrategia, clase_resultados):
         self.numero_ejecucion = 1
         random.seed(ps.SEED)
         self.estrategia = estrategia
@@ -36,6 +36,8 @@ class Simulacion:
         self.capacidades_camas = {}
         self.capacidad_cama_por_simulacion = {}
         self.promedio_capacidades = {}
+        self.clase_resultados = clase_resultados
+        
     def agregar_hospitales(self):
         for i in range(ps.NUMERO_HOSPITALES):
             hospital = Hospital(f"H_{i+1}", simulacion=self)
@@ -44,6 +46,8 @@ class Simulacion:
     def simular_miltiples_veces(self):
         for i in range(ps.SIMULACIONES_POR_ESTRATEGIA):
             self.simular()
+            if i == ps.SIMULACIONES_POR_ESTRATEGIA - 1:
+                self.clase_resultados.append(self)
             self.resetear_simulacion()
 
     def simular_mejores_estrategias_multiples_veces(self):
@@ -76,6 +80,7 @@ class Simulacion:
                 # self.imprimir_estado()
                 self.jornadas_transcurridas += 1
             self.dias_transcurridos += 1
+        
         self.resultados.append(self.calcular_funcion_objetivo())
         self.calcular_tasas_ocupacion()
         
