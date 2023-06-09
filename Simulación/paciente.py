@@ -20,6 +20,7 @@ class Paciente():
         self.definir_ruta_paciente()
         self.tiempo_atencion_unidad_actual = 0
         self.tiempo_a_esperar = None
+        self.hospital_llegada = None
 
     def definir_ruta_paciente(self):
         if self.grupo_diagnostico >= 5:

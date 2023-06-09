@@ -132,6 +132,7 @@ class Urgencias(SalaDeLLegada):
             cantidad_de_llegadas = random.poisson(ph.TASA_LLEGADA_HOSPITAL[self.hospital][grupo_diagnostico])
             for i in range(cantidad_de_llegadas):
                 paciente = Paciente(grupo_diagnostico)
+                paciente.hospital_llegada = self.hospital
                 if paciente.ruta_paciente[0] == self.codigo:
                     paciente.ruta_paciente.pop(0)
                 else:
