@@ -675,7 +675,7 @@ class Datos_partida():
         diccionario_estrategia = {}
         total_gravedades = 8
         total_unidades = ["ED","ICU","OR","SDU_WARD","GA"]
-        hospitales = ["H_1","WL"]
+        hospitales = ["H_1","H_2","H_3","WL"]
         valor = 15
         lista = {1: valor, 2: valor, 3: valor, 4: valor, 5: valor, 6: valor, 7: valor, 8: valor}
         
