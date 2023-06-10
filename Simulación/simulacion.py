@@ -24,7 +24,7 @@ class Simulacion:
         self.costos_jornada = {i : 0 for i in range(1, self.jornadas_de_simulacion + 1)}
         self.lista_kpis = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
         self.diccionario_resultados_jornada = {j : 0 for j in self.lista_kpis}
-        self.diccionario_resultados = {f"Simulación {i}" : {j : 0 for j in self.lista_kpis} for i in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.diccionario_resultados = {f"Simulación {i}" : {j : 0 for j in self.lista_kpis} for i in range(1, ps.SIMULACIONES_POR_ESTRATEGIA + 1)}
         self.agregar_hospitales()
         self.funciones_objetivos = {}
         self.listorra = ["H_1", "H_2", "H_3", "WL"]
@@ -49,7 +49,7 @@ class Simulacion:
     def reacomodar_diccionarios_simulacion(self):
         lista1 = ["H_1","H_2","H_3","WL"]
         listakpi1 = ["Costos muertos", "Costos traslados","Costos jornada","Tasas ocupación"]    
-        for n_simulacion in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1):
+        for n_simulacion in range(1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
             for kpi in listakpi1:
                 self.diccionario_resultados[f"Simulación {n_simulacion}"][kpi] = {i.nombre : 0 for i in self.hospitales}
             self.diccionario_resultados[f"Simulación {n_simulacion}"]["Costos derivaciones"] = {i : 0 for i in lista1}
@@ -125,7 +125,7 @@ class Simulacion:
             self.resetear_simulacion()
 
     def simular_mejores_estrategias_multiples_veces(self):
-        for i in range(ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA):
+        for i in range(ps.SIMULACIONES_POR_ESTRATEGIA):
             self.simular_cambio_estrategia()
             self.resetear_simulacion()
 
@@ -163,8 +163,8 @@ class Simulacion:
         self.costos_derivacion = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}     
         self.costos_muertos_hospitales = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}       
         self.costos_jornada = {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)}
-        self.derivaciones = {j : {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
-        self.espera_WL = {j : {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.derivaciones = {j : {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_ESTRATEGIA + 1)}
+        self.espera_WL = {j : {i : 0 for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_ESTRATEGIA + 1)}
         self.pacientes_esperando = {j : {i : {"ICU" : 0, "SDU_WARD" : 0, "OR" : 0, "GA" : 0} for i in range(ps.DIAS_SIMULACION_CAMBIO)} for j in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
         
         for dia in range(ps.DIAS_SIMULACION_CAMBIO):
@@ -284,14 +284,14 @@ class Simulacion:
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
-        print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}, costos muertos WL: {self.costos_muertos_WL}" +
-              f" estrategia: {self.estrategia.id}")
+        #print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}, costos muertos WL: {self.costos_muertos_WL}" +
+         #     f" estrategia: {self.estrategia.id}")
         
         promedio = self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"]["Costos jornada"]
         
         
         self.funciones_objetivos[self.numero_ejecucion] = promedio
-        print(f"Promedio diario: {promedio}")
+        #print(f"Promedio diario: {promedio}")
         return promedio
 
     def resetear_simulacion(self):

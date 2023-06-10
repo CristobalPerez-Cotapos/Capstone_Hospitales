@@ -28,8 +28,6 @@ if __name__ == "__main__":
 
 #print("Costo total: ", simulacion.promedio_resultados())
 
-
-
 # estrategia_inicial = simulacion.estrategia_base
 # mejor_estrategia = simulacion.mejor_estrategia
 # analisis = Analisis(estrategia_inicial, mejor_estrategia)

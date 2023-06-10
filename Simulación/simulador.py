@@ -51,7 +51,7 @@ class Simulador:
         manager = mp.Manager()
         resultados_simulaciones = manager.list()
         simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in estrategias]
-        pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
+        pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
         
 
         pool.map(Simulacion.simular_miltiples_veces, simulaciones)
@@ -64,15 +64,15 @@ class Simulador:
         self.mejor_estrategia = self.simulaciones[0]
         mejor_valor = self.simulaciones[0].promedio_resultados()
         
-        for i in range(2):
+        for i in range(ps.NUMERO_ITERACIONES):
             lista_estrategias = []
-            for j in range(3):
+            for j in range(5):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
                 parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
                 nuva_estrategia = Estrategia(nuva_estrategia, parametros_secundarios)
                 lista_estrategias.append(nuva_estrategia)
                 
-            for j in range(3, ps.NUMERO_SIMULACIONES_PARALELAS):
+            for j in range(5, ps.NUMERO_SIMULACIONES_PARALELAS):
                 estrtegia = self.generar_nueva_estrategia()
                 estrtegia = Estrategia(estrtegia[0], estrtegia[1])
                 lista_estrategias.append(estrtegia)
@@ -80,7 +80,7 @@ class Simulador:
             manager = mp.Manager()
             resultados_simulaciones = manager.list()
             simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in lista_estrategias]
-            pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
+            pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
             pool.map(Simulacion.simular_miltiples_veces, simulaciones)
             resultados = list(resultados_simulaciones)
             for simulacion in resultados:
@@ -100,7 +100,8 @@ class Simulador:
                 self.mejor_estrategia = self.simulaciones[0]
                 
         lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
-        for j in range(10):
+        
+        for j in range(ps.NUMERO_ITERACIONES):
             diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
             for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
                 for kpi in lista_KPIs:

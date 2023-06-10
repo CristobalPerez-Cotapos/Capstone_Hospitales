@@ -89,7 +89,7 @@ class Datos_Registro:
             grupo = lista[0]
             unidad = lista[1:]
             datos = diccionario_valores[lista]
-            distribuciones = ['lognorm', 'expon', 'gamma', 'norm', 'beta', 'uniform']
+            distribuciones = ['lognorm', 'expon', 'norm', 'beta', 'uniform']
             resultados = []
 
             for dist_name in distribuciones:
@@ -272,13 +272,13 @@ class Datos_Registro:
         return diccionario
 
     def estadia_jornada(self, TimeStamp1, TimeStamp2):
-        n_jornadas = ((TimeStamp1 - TimeStamp2).days) / 12
+        n_jornadas = ((TimeStamp1 - TimeStamp2).days) * 2
         cantidad_horas = ((TimeStamp1 - TimeStamp2).seconds) / 3600
 
         if cantidad_horas >= 22:
             cantidad_horas = 24
 
-        if 12 <= cantidad_horas <= 14:
+        if 10 <= cantidad_horas <= 14:
             cantidad_horas = 12
 
         if cantidad_horas <= 3:
