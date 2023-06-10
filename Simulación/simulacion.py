@@ -291,7 +291,7 @@ class Simulacion:
         
         
         self.funciones_objetivos[self.numero_ejecucion] = promedio
-        #print(f"Promedio diario: {promedio}")
+        print(f"Promedio diario: {promedio}")
         return promedio
 
     def resetear_simulacion(self):

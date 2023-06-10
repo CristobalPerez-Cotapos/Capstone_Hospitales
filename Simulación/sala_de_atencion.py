@@ -64,6 +64,7 @@ class SalaDeAtencion(ABC):
                 try:
                     costos_muertos += ph.VALOR_RIESGO[i.ruta_paciente[0]][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1] * ps.COSTO_VIDA
                 except KeyError:
+                    print(f"El paciente {i.id} ha muerto en la unidad {self.codigo} por no tener un valor de riesgo asociado")
                     costos_muertos += ps.COSTO_VIDA
 
             #print(f"El paciente {i.id} ha incurrido en un gasto en la unidad {self.codigo} de {self.costo[i.grupo_diagnostico]}")
@@ -82,8 +83,6 @@ class SalaDeAtencion(ABC):
         return (self.cantidad_de_pacientes_por_grupo_en_atencion,
                 self.cantidad_de_pacientes_por_grupo_atendidos,
                 self.camas_disponibles)
-
-
 
 class Operatorio(SalaDeAtencion):
     def __init__(self, codigo="OR", *args, **kwargs):

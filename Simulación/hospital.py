@@ -58,12 +58,12 @@ class Hospital:
         self.cuidados_intermedios.simular_jornada()
         self.admision.simular_jornada()
         
-        for i in range(5):
+        for i in range(10):
             self.desplazamiento_entre_unidades()   # Lo hacemos 5 veces por las 5 unidades
 
         self.urgencias.simular_jornada()
 
-        for i in range(5):
+        for i in range(10):
             self.desplazamiento_entre_unidades()   # Lo hacemos 5 veces por las 5 unidades
         
     def desplazamiento_entre_unidades(self):
