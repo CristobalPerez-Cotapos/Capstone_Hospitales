@@ -49,7 +49,8 @@ class Paciente():
             if distribucion == "lognorm":
                 parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
                 parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1]
-                valor = sp.lognorm.rvs(loc=parametro_1, s=parametro_2, size=1)[0]
+                parametro_3 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][2]
+                valor = sp.lognorm.rvs(s=parametro_1, loc=parametro_2, scale=parametro_3, size=1)[0]
 
             elif distribucion == "expon":
                 parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]

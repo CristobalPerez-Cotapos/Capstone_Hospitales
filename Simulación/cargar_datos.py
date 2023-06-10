@@ -284,7 +284,7 @@ class Datos_Registro:
         if cantidad_horas <= 3:
             cantidad_horas = 0
 
-        n_jornadas += cantidad_horas / 12
+        n_jornadas += cantidad_horas // 12
 
         return n_jornadas
 

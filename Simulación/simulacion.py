@@ -284,8 +284,8 @@ class Simulacion:
         costo_total = 0
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
-        #print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}, costos muertos WL: {self.costos_muertos_WL}" +
-         #     f" estrategia: {self.estrategia.id}")
+        print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}, costos muertos WL: {self.costos_muertos_WL}" +
+              f" estrategia: {self.estrategia.id}")
         
         promedio = self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"]["Costos jornada"]
         
