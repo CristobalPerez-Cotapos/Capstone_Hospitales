@@ -59,14 +59,6 @@ class Parametros:
                 for j in diccionario_json[i]:
                     nuevo_diccionario[i][int(j)] = diccionario_json[i][j]
         
-        elif llave == "TIEMPOS_ESPERA_POR_UNIDAD":
-            for i in diccionario_json:
-                nuevo_diccionario[int(i)] = {}
-                for j in diccionario_json[i]:
-                    nuevo_diccionario[int(i)][j] = {}
-                    for k in diccionario_json[i][j]:
-                        nuevo_diccionario[int(i)][j][k] = diccionario_json[i][j][k]
-
         elif llave == "VALOR_RIESGO":
             for i in diccionario_json:
                 nuevo_diccionario[i] = {}
@@ -77,25 +69,13 @@ class Parametros:
                         for r in diccionario_json[i][j][k]:
                             nuevo_diccionario[i][int(j)][k][int(r)] = diccionario_json[i][j][k][r]
 
-        elif llave == "VALOR_VIDA":
-            for i in diccionario_json:
-                nuevo_diccionario[i] = {}
-                for j in diccionario_json[i]:
-                    nuevo_diccionario[i][int(j)] = diccionario_json[i][j]
-
-        elif llave == "TIEMPOS_ESTADIA":
+        elif llave == "DISTRIBUCION_TIEMPO":
             for i in diccionario_json:
                 nuevo_diccionario[int(i)] = {}
                 for j in diccionario_json[i]:
                     nuevo_diccionario[int(i)][j] = diccionario_json[i][j]
 
-        elif llave == "PARAMETROS_DISTRIBUCION_TIEMPO":
-            for i in diccionario_json:
-                nuevo_diccionario[int(i)] = {}
-                for j in diccionario_json[i]:
-                    nuevo_diccionario[int(i)][j] = diccionario_json[i][j]
-
-        elif llave == "PARAMETROS_ESTRATEGIA_PROVISORIOS":
+        elif llave == "PARAMETROS_ESTRATEGIA_PRINCIPALES":
             for i in diccionario_json:
                 nuevo_diccionario[int(i)] = {}
                 for j in diccionario_json[i]:
@@ -117,6 +97,12 @@ class Parametros:
                             lista_provisoria.append(diccionario_provisorio_2)
                             lista_provisoria.append(valor)
                             nuevo_diccionario[int(i)][j][k] = lista_provisoria   
+
+        elif llave == "TIEMPOS_ESPERA":
+            for i in diccionario_json:
+                nuevo_diccionario[i] = {}
+                for j in diccionario_json[i]:
+                    nuevo_diccionario[i][int(j)] = diccionario_json[i][j]
         return nuevo_diccionario
 
 class Archivos:

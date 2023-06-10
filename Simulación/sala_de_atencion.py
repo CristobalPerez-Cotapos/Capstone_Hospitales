@@ -6,12 +6,11 @@ random.seed(ps.SEED)
 
 class SalaDeAtencion(ABC):
 
-    def __init__(self, hospital:str, costo:dict, tiempo_espera:dict, capacidad:int):
+    def __init__(self, hospital:str, costo:dict, capacidad:int):
         super().__init__()
         self.pacientes_en_atencion = {i: [] for i in range(1, 9)}
         self.pacientes_atendidos = [] # lista de pacientes ya atendidos en el orden en que fueron atendidos
         self.costo = costo
-        self.tiempos_espera = tiempo_espera  # {grupo_diagnostico: tiempo_espera}
         self.capacidad = capacidad
         self.cantidad_de_pacientes_por_grupo_en_atencion = {i: 0 for i in range(1, 9)}
         self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}

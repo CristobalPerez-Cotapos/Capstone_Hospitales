@@ -19,39 +19,37 @@ class Hospital:
         self.urgencias = Urgencias(hospital=self.nombre, 
                                    costo=ph.COSTOS_POR_UNIDAD[self.nombre]["ED"],
                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["ED"],
-                                   tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["ED"],
                                    simulacion=self.simulacion)
 
         self.operatorio = Operatorio(hospital=self.nombre,
                                     costo=ph.COSTOS_POR_UNIDAD[self.nombre]["OR"],
-                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["OR"],
-                                    tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["OR"])
+                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["OR"],)
         
         self.cuidados_intensivos = CuidadosIntensivos(hospital=self.nombre,
                                                     costo=ph.COSTOS_POR_UNIDAD[self.nombre]["ICU"],
-                                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["ICU"],
-                                                    tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["ICU"])
+                                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["ICU"],)
         
         self.cuidados_intermedios = CuidadosIntermedios(hospital=self.nombre,
                                                     costo=ph.COSTOS_POR_UNIDAD[self.nombre]["SDU_WARD"],
-                                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["SDU_WARD"],
-                                                    tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["SDU_WARD"])
+                                                    capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["SDU_WARD"],)
         
         self.admision = Admision(hospital=self.nombre,
                                 costo=ph.COSTOS_POR_UNIDAD[self.nombre]["GA"],
-                                capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["GA"],
-                                tiempo_espera=ph.TIEMPOS_ESPERA_POR_UNIDAD[self.nombre]["GA"])
+                                capacidad=ph.CAMAS_POR_UNIDAD[self.nombre]["GA"],)
         
-    def revisar_capacidades_camas(self, dia):
-        if dia in ps.ID_DIAS_MUESTRAS:
-            dicc = {}
-            for unidad in self.lista_de_unidades:
-                codigo = unidad.codigo
-                tasa_ocupacion = (ph.CAMAS_POR_UNIDAD[self.nombre][codigo] - unidad.camas_disponibles) 
-                tasa_ocupacion = tasa_ocupacion / ph.CAMAS_POR_UNIDAD[self.nombre][codigo] * 100
-                dicc[codigo] = tasa_ocupacion
-            return dicc
-        return None
+    def revisar_capacidades_camas(self):
+        lista_unidades_medicas = ["OR", "ICU", "SDU_WARD"]
+        dicc = {i : { j : 0 for j in lista_unidades_medicas} for i in range(1, 9)}
+        for unidad in self.lista_de_unidades:
+            codigo = unidad.codigo
+            if codigo in lista_unidades_medicas:
+                for grupo_diagnostico in unidad.cantidad_de_pacientes_por_grupo_en_atencion.keys():
+                    cantidad = 0
+                    cantidad += unidad.cantidad_de_pacientes_por_grupo_en_atencion[grupo_diagnostico]
+                    cantidad += unidad.cantidad_de_pacientes_por_grupo_atendidos[grupo_diagnostico]
+                    tasa_ocupacion = cantidad / ph.CAMAS_POR_UNIDAD[self.nombre][codigo] * 100
+                    dicc[grupo_diagnostico][codigo] = tasa_ocupacion
+        return dicc
 
 
     def simular_jornada(self):

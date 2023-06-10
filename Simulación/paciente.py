@@ -20,6 +20,7 @@ class Paciente():
         self.definir_ruta_paciente()
         self.tiempo_atencion_unidad_actual = 0
         self.tiempo_a_esperar = None
+        self.hospital_llegada = None
 
     def definir_ruta_paciente(self):
         if self.grupo_diagnostico >= 5:
@@ -40,15 +41,46 @@ class Paciente():
                 break
 
     def tiempo_espera(self, gravedad, unidad):
+
         if unidad != "GA" and unidad != "FIN":
-            sigma = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Sigma"]
-            loc = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Loc"]
-            scale = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Scale"]
-            maximo = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Maximo"]
-            minimo = ph.PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO[gravedad][unidad]["Minimo"]
-            valor = sp.lognorm.rvs(loc=loc, s=sigma, scale=scale, size=1)[0]
-            valor = min(maximo, valor)
-            valor = max(minimo, valor)
+
+            distribucion = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["DISTRIBUCION"]
+
+            if distribucion == "lognorm":
+                parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
+                parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1]
+                valor = sp.lognorm.rvs(loc=parametro_1, s=parametro_2, size=1)[0]
+
+            elif distribucion == "expon":
+                parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
+                parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1] 
+                valor = sp.expon.rvs(loc=parametro_1, scale=parametro_2, size=1)[0]
+            
+            elif distribucion == "gamma":
+                parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
+                parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1]
+                parametro_3 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][2]
+                valor = sp.gamma.rvs(a=parametro_1, loc=parametro_2, scale=parametro_3, size=1)[0]
+            
+            elif distribucion == "norm":
+                parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
+                parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1]
+                valor = sp.norm.rvs(loc=parametro_1, scale=parametro_2, size=1)[0]
+
+            elif distribucion == "uniform":
+                parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
+                parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1]
+                valor = sp.uniform.rvs(loc=parametro_1, scale=parametro_2, size=1)[0]
+
+            elif distribucion == "beta":
+                parametro_1 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][0]
+                parametro_2 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][1]
+                parametro_3 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][2]
+                parametro_4 = ph.PARAMETROS_DISTRIBUCION_TIEMPO[gravedad][unidad]["PARAMETROS"][3]
+                valor = sp.beta.rvs(a=parametro_1, b=parametro_2, loc=parametro_3, scale=parametro_4, size=1)[0]
+                pass                
+
+                ### pendienteee
             self.tiempo_a_esperar = valor / 2
             
         elif unidad == "GA" and unidad != "FIN":

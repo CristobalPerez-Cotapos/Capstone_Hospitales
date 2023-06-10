@@ -1,4 +1,4 @@
-from funciones import Archivos as ar
+from abrir_json import Archivos as ar
 import parametros_simulacion as ps
 
 diccionario_estrategias = {'Estrategia Inicial' : ps.PARAMETROS_ESTRATEGIA_PROVISORIOS, 

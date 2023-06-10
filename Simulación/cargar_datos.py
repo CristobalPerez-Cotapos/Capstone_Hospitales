@@ -2,6 +2,10 @@ import pandas as pd
 import fitter as ft
 import json
 from os.path import join
+import pandas as pd
+import itertools as it
+from scipy import stats
+import matplotlib.pyplot as plt
 
 class Datos_Registro:
 
@@ -29,69 +33,87 @@ class Datos_Registro:
         return lista_datos
 
     # funciones principales
-    def distribucion_tiempo_atencion(self, dicc):
-        dicc_parametros_distribucion = {}
+
+    def tiempos_espera(self):
+        diccionario_tiempos_espera = {}
+        unidades = ["WL"]
+        grupos = [1, 2, 3, 4, 5, 6, 7, 8]
+        valor = 0
+        for unidad in unidades:
+            for grupo in grupos:
+                frase = f"{unidad} - {grupo}"
+                diccionario_tiempos_espera[frase] = valor
+
+        diccionario_tiempos_espera = self.mostrar_diccionario_bonito(diccionario_tiempos_espera, 2)
+
+        return diccionario_tiempos_espera
+
+    def distribucion_tiempo(self): 
+
+        datos = self.sacar_tasas()
+        datos = datos.values
+        base_de_datos = []
+
+        for dato in datos:
+            primera_fila_lista = dato.tolist()
+            primera_fila_separada = list(it.chain.from_iterable(
+                str(elemento).split(',') for elemento in primera_fila_lista))
+            base_de_datos.append(primera_fila_separada)
+
+        grupos_diagnostico = [1, 2, 3, 4, 5, 6, 7, 8]
+        unidad_medica = ["OR", "ICU", "SDU_WARD"]
+
+        lista_combinaciones = []
+
+        for grupo in grupos_diagnostico:
+            for unidad in unidad_medica:
+                combi = str(grupo) + str(unidad)
+                lista_combinaciones.append(combi)
+
+        diccionario_valores = {}
+
+        for lista in lista_combinaciones:
+            diccionario_valores[lista] = []
+
+        for linea in base_de_datos:
+            i = 0
+            for elemento in linea:
+                if elemento != "nan":
+                    diccionario_valores[lista_combinaciones[i]].append(float(elemento))
+                i += 1
+
+        diccionario_valores_tiempo = {}
+
+        for lista in lista_combinaciones:
+
+            grupo = lista[0]
+            unidad = lista[1:]
+            datos = diccionario_valores[lista]
+            distribuciones = ['lognorm', 'expon', 'gamma', 'norm', 'beta', 'uniform']
+            resultados = []
+
+            for dist_name in distribuciones:
+                dist = getattr(stats, dist_name)
+                params = dist.fit(datos)
+                log_likelihood = dist.logpdf(datos, *params).sum()
+                k = len(params)
+                n = len(datos)
+                aic = 2 * k - 2 * log_likelihood
+                resultados.append({'DISTRIBUCION': dist_name,
+                          'PARAMETROS': params, 'AIC': aic})
                 
-        
-        for key in dicc.keys():
-            for key2 in dicc[key].keys():
-                frase = f"{key} - {key2}"
-                fit = ft.Fitter(dicc[key][key2], distributions=['lognorm'])
-                fit.fit()
-                parametros_lognorm = fit.fitted_param['lognorm']
-                dicc_parametros_distribucion[frase] = parametros_lognorm
-        dicc_parametros_distribucion = self.mostrar_diccionario_bonito(dicc_parametros_distribucion, 2)
-        return dicc_parametros_distribucion
+            resultados = sorted(resultados, key=lambda x: x['AIC'])
+            frase = f"{grupo} - {unidad}"
 
-    def calcular_tiempo_atencion(self):
-        diccionario_tiempos = {}
-        self.lista_auxiliar = []
-        for procedimiento in self.lista_datos:
-            if procedimiento[5]!= "ED" and procedimiento[5] != "WL" and procedimiento[5] != "PS":
-                unidad_medica = procedimiento[5]
-                gravedad = procedimiento[3]
-                dif = procedimiento[2]-procedimiento[1]
-                dias = dif.days
-                horas = dif.seconds/3600
-                if 0 < horas < 2 :
-                    horas = 0
-                elif  10 < horas < 14:
-                    horas = 12
-                elif 22 < horas < 24 :
-                    horas = 0
-                    dias += 1
-                jornadas_atencion = (dias * 24 + horas) / 12
-                frase = f"{gravedad} - {unidad_medica}"
-                if frase in diccionario_tiempos:
-                    condicion = False
-                    for lista in diccionario_tiempos[frase]:
-                        if lista[0] == jornadas_atencion:
-                            condicion = True
-                            lista[1] += 1
-                    if not condicion:
-                        diccionario_tiempos[frase].append([jornadas_atencion, 1])
-                else:
-                    diccionario_tiempos[frase] = [[jornadas_atencion, 1]]
-                
-                frase2 = f"{gravedad} - {unidad_medica}"
-                condicion = False
-                for acumulado in self.lista_auxiliar:
-                    if acumulado[0] == frase2:
-                        condicion = True
-                        indice = self.lista_auxiliar.index(acumulado)
-                if condicion:
-                    self.lista_auxiliar[indice][1] += 1
-                else:
-                    self.lista_auxiliar.append([frase2, 1])
-        for key in diccionario_tiempos.keys():
-            for i in range(0, len(self.lista_auxiliar)):
-                if self.lista_auxiliar[i][0] in key:
-                    for lista in diccionario_tiempos[key]:
-                        lista[1] = lista[1] / self.lista_auxiliar[i][1]
+            nuevo_diccionario = {}
+            for resultado in resultados:
+                nuevo_diccionario["DISTRIBUCION"] = resultado["DISTRIBUCION"]
+                nuevo_diccionario["PARAMETROS"] = resultado["PARAMETROS"]
+                diccionario_valores_tiempo[frase] = nuevo_diccionario
+                break
 
-        diccionario_tiempos = self.mostrar_diccionario_bonito(diccionario_tiempos, 2)
-
-        return diccionario_tiempos
+        diccionario_valores_tiempo = self.mostrar_diccionario_bonito(diccionario_valores_tiempo, 2)
+        return diccionario_valores_tiempo
 
     def llegada_poisson(self):
         diccionario_probabilidad_llegada = {}
@@ -131,8 +153,6 @@ class Datos_Registro:
         diccionario_probabilidad_llegada = self.calcular_promedio(diccionario_probabilidad_llegada, cantidad_dias)
         diccionario_probabilidad_llegada = self.mostrar_diccionario_bonito(diccionario_probabilidad_llegada, 2)
         
-        for key in diccionario_probabilidad_llegada.keys():
-            print(key, diccionario_probabilidad_llegada[key])
         return diccionario_probabilidad_llegada
 
     def probabilidades_movimientos(self):
@@ -250,6 +270,67 @@ class Datos_Registro:
             frase = f"{parametros[0]} - {parametros[1]}"
             diccionario[i] = diccionario[i] / diccionario_sumas[frase] * 100
         return diccionario
+
+    def estadia_jornada(self, TimeStamp1, TimeStamp2):
+        n_jornadas = ((TimeStamp1 - TimeStamp2).days) / 12
+        cantidad_horas = ((TimeStamp1 - TimeStamp2).seconds) / 3600
+
+        if cantidad_horas >= 22:
+            cantidad_horas = 24
+
+        if 12 <= cantidad_horas <= 14:
+            cantidad_horas = 12
+
+        if cantidad_horas <= 3:
+            cantidad_horas = 0
+
+        n_jornadas += cantidad_horas / 12
+
+        return n_jornadas
+
+    def sacar_tasas(self):
+    
+        base_de_datos = []
+
+        for dato in self.lista_datos:
+            primera_fila_lista = dato
+
+            primera_fila_separada = list(it.chain.from_iterable(
+                str(elemento).split(',') for elemento in primera_fila_lista))
+            
+            base_de_datos.append(primera_fila_separada)
+
+        hospitales = ["H1", "H2", "H3"]
+        grupos_diagnostico = [1, 2, 3, 4, 5, 6, 7, 8]
+        unidad_medica = ["OR", "ICU", "SDU_WARD"]
+        lista_combinaciones = []
+
+        for grupo in grupos_diagnostico:
+            for unidad in unidad_medica:
+                combi = str(grupo) + str(unidad)
+                lista_combinaciones.append(combi)
+
+        diccionario_hospital = {}
+        diccionario_grupo_unidades = {}
+    
+        for llave in lista_combinaciones:
+            diccionario_grupo_unidades[llave] = []
+
+        for linea in base_de_datos:
+            if linea[5] in unidad_medica:
+                llave = str(linea[3]) + str(linea[5])
+                tiempo_1 = pd.to_datetime(str(linea[1]))
+                tiempo_2 = pd.to_datetime(str(linea[2]))
+                cantidad_jornadas = self.estadia_jornada(tiempo_2, tiempo_1)
+                valor = float(cantidad_jornadas)
+                actual = diccionario_grupo_unidades[llave]
+                actual.append(valor)
+                diccionario_grupo_unidades[llave] = actual
+
+        df_nuevo = pd.DataFrame.from_dict(
+            diccionario_grupo_unidades, orient='index').transpose()
+
+        return df_nuevo
 
 class Datos_Costos:
 
@@ -557,41 +638,38 @@ class Datos_partida():
         self.vida = vida
         self.llaves = ["PROBABILIDADES_DE_TRANSICION", 
                        "TASA_LLEGADA_HOSPITAL", 
-                       "TIEMPOS_ESPERA_POR_UNIDAD",
-                       "PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO",
+                       "DISTRIBUCION_TIEMPO",
                        "CAMAS_POR_UNIDAD", 
-                       "COSTOS_POR_UNIDAD",
+                       "COSTOS_POR_UNIDAD", 
                        "COSTOS_TRASLADO", 
-                       "COSTOS_DERIVACION",
-                       "VALOR_RIESGO",
-                       "VALOR_VIDA",
-                       "PARAMETROS_ESTRATEGIA_PROVISORIOS"]
+                       "COSTOS_DERIVACION", 
+                       "VALOR_RIESGO", 
+                       "PARAMETROS_ESTRATEGIA_PRINCIPALES",
+                       "TIEMPOS_ESPERA"]
 
     def cargar_diccionarios(self):
         self.diccionario_registros_llegada_poisson = self.registros.llegada_poisson()
-        self.diccionario_registros_tiempos_estadia = self.registros.calcular_tiempo_atencion()
-        self.diccionario_parametros_distribucion_tiempo = self.registros.distribucion_tiempo_atencion(self.diccionario_registros_tiempos_estadia)
+        self.diccionario_distribucion_tiempo = self.registros.distribucion_tiempo()
         self.diccionario_registros_probabilidades_movimientos = self.registros.probabilidades_movimientos()
         self.diccionario_costos_unidades_operacionales, self.diccionario_costos_traslados_operacionales, self.diccionario_costos_derivados_operacionales = self.costos.costos_operacionales()
         self.diccionario_capacidad_camas = self.capacidad.capacidad_camas()
         self.diccionario_riesgo_operaciones = self.riesgo.riesgo_operaciones()
-        self.diccionario_valor_vida = self.vida.valor_vida()
         self.diccionario_parametros_estrategia_inicial = self.cargar_primera_estrategia()
+        self.diccionario_tiempo_espera = self.registros.tiempos_espera()
         self.diccionario_general()
     
     def diccionario_general(self):
 
         self.diccionario_gen = {"PROBABILIDADES_DE_TRANSICION": self.diccionario_registros_probabilidades_movimientos,
                             "TASA_LLEGADA_HOSPITAL": self.diccionario_registros_llegada_poisson,
-                            "TIEMPOS_ESPERA_POR_UNIDAD": self.diccionario_registros_tiempos_estadia,
-                            "PARAMETROS_DISTRIBUCION_LOGNORMAL_TIEMPO": self.diccionario_parametros_distribucion_tiempo,
+                            "DISTRIBUCION_TIEMPO": self.diccionario_distribucion_tiempo,
                             "CAMAS_POR_UNIDAD": self.diccionario_capacidad_camas,
                             "COSTOS_POR_UNIDAD": self.diccionario_costos_unidades_operacionales,
                             "COSTOS_TRASLADO": self.diccionario_costos_traslados_operacionales,
                             "COSTOS_DERIVACION": self.diccionario_costos_derivados_operacionales,
                             "VALOR_RIESGO": self.diccionario_riesgo_operaciones,
-                            "VALOR_VIDA": self.diccionario_valor_vida,
-                            "PARAMETROS_ESTRATEGIA_PROVISORIOS": self.diccionario_parametros_estrategia_inicial}
+                            "PARAMETROS_ESTRATEGIA_PRINCIPALES": self.diccionario_parametros_estrategia_inicial,
+                            "TIEMPOS_ESPERA": self.diccionario_tiempo_espera}
         
     def cargar_primera_estrategia(self):
         diccionario_estrategia = {}
@@ -684,14 +762,6 @@ class Datos_partida():
                     for k in diccionario_json[i][j]:
                         nuevo_diccionario[i][j][int(k)] = diccionario_json[i][j][k]
         
-        elif llave == "TIEMPOS_ESPERA_POR_UNIDAD":
-            for i in diccionario_json:
-                nuevo_diccionario[int(i)] = {}
-                for j in diccionario_json[i]:
-                    nuevo_diccionario[int(i)][j] = {}
-                    for k in diccionario_json[i][j]:
-                        nuevo_diccionario[int(i)][j][k] = diccionario_json[i][j][k]
-
         elif llave == "VALOR_RIESGO":
             for i in diccionario_json:
                 nuevo_diccionario[i] = {}
@@ -702,25 +772,13 @@ class Datos_partida():
                         for r in diccionario_json[i][j][k]:
                             nuevo_diccionario[i][int(j)][k][int(r)] = diccionario_json[i][j][k][r]
 
-        elif llave == "VALOR_VIDA":
-            for i in diccionario_json:
-                nuevo_diccionario[i] = {}
-                for j in diccionario_json[i]:
-                    nuevo_diccionario[i][int(j)] = diccionario_json[i][j]
-
-        elif llave == "TIEMPOS_ESTADIA":
+        elif llave == "DISTRIBUCION_TIEMPO":
             for i in diccionario_json:
                 nuevo_diccionario[int(i)] = {}
                 for j in diccionario_json[i]:
                     nuevo_diccionario[int(i)][j] = diccionario_json[i][j]
 
-        elif llave == "PARAMETROS_DISTRIBUCION_TIEMPO":
-            for i in diccionario_json:
-                nuevo_diccionario[int(i)] = {}
-                for j in diccionario_json[i]:
-                    nuevo_diccionario[int(i)][j] = diccionario_json[i][j]
-
-        elif llave == "PARAMETROS_ESTRATEGIA_PROVISORIOS":
+        elif llave == "PARAMETROS_ESTRATEGIA_PRINCIPALES":
             for i in diccionario_json:
                 nuevo_diccionario[int(i)] = {}
                 for j in diccionario_json[i]:
@@ -743,6 +801,12 @@ class Datos_partida():
                             lista_provisoria.append(valor)
                             nuevo_diccionario[int(i)][j][k] = lista_provisoria
         
+        elif llave == "TIEMPOS_ESPERA":
+            for i in diccionario_json:
+                nuevo_diccionario[i] = {}
+                for j in diccionario_json[i]:
+                    nuevo_diccionario[i][int(j)] = diccionario_json[i][j]
+
         return nuevo_diccionario
     
 registros = Datos_Registro('Datos_Historicos_Hospital.xlsx','Registros')
