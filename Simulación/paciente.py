@@ -81,8 +81,10 @@ class Paciente():
                 valor = sp.beta.rvs(a=parametro_1, b=parametro_2, loc=parametro_3, scale=parametro_4, size=1)[0]
                 pass                
 
+            elif distribucion == "None":
+                valor = 1
                 ### pendienteee
-            self.tiempo_a_esperar = valor / 2
+            self.tiempo_a_esperar = valor
             
         elif unidad == "GA" and unidad != "FIN":
             self.tiempo_a_esperar = 0
