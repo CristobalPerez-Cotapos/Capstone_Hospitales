@@ -111,7 +111,32 @@ class Datos_Registro:
                 nuevo_diccionario["PARAMETROS"] = resultado["PARAMETROS"]
                 diccionario_valores_tiempo[frase] = nuevo_diccionario
                 break
-
+            if grupo == "3" and unidad == "ICU":
+                nuevo_diccionario["DISTRIBUCION"] = "lognorm"
+                nuevo_diccionario["PARAMETROS"] = [0.70731469,0,2.0285367]
+                diccionario_valores_tiempo[frase] = nuevo_diccionario
+            elif unidad == "OR":
+                nuevo_diccionario["DISTRIBUCION"] = "lognorm"
+                if grupo == "1":
+                    nuevo_diccionario["PARAMETROS"] = [0.2732350451844458,0,1.3142091070469946]
+                elif grupo == "2":
+                    nuevo_diccionario["PARAMETROS"] = [0.26049830399467266,0,1.297576513153843]
+                elif grupo == "3":
+                    nuevo_diccionario["PARAMETROS"] = [0.20702594867247723,0,1.2300144886097584]
+                elif grupo == "4":
+                    nuevo_diccionario["PARAMETROS"] = [0.2650591886409824,0,1.3035081263696362]
+                elif grupo == "5":
+                    nuevo_diccionario["PARAMETROS"] = [0.071635208787302,0,1.0742633907325323]
+                elif grupo == "7":
+                    nuevo_diccionario["PARAMETROS"] = [0.20234561427064507,0,1.2242710605503309]
+                elif grupo == "8":
+                    nuevo_diccionario["PARAMETROS"] = [0.18365536463378365,0,1.2016016373085456]
+                
+                if grupo == "6":
+                    nuevo_diccionario["DISTRIBUCION"] = "None"
+                    nuevo_diccionario["PARAMETROS"] = "None"
+                diccionario_valores_tiempo[frase] = nuevo_diccionario
+                
         diccionario_valores_tiempo = self.mostrar_diccionario_bonito(diccionario_valores_tiempo, 2)
         return diccionario_valores_tiempo
 
