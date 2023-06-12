@@ -27,24 +27,27 @@ class Simulador:
     def funcion_objetivo(self, simulacion):
         return simulacion.calcular_funcion_objetivo()
     
-    def generar_nueva_estrategia(self):
-        aleatorio = random.random()
-        if aleatorio < 0.1:
+    def generar_nueva_estrategia(self, numero_iteraciones):
+        aleatorio_mutacion_fuerte = random.random()
+        if aleatorio_mutacion_fuerte < max(1/numero_iteraciones, 0.05):
             return (self.estrategia.mutar_estrategia_fuerte(), deepcopy(self.estrategia.parametros_secundarios))
-        elif aleatorio < 0.4:
-            return (self.estrategia.mutar_estrategia_muy_debil(), deepcopy(self.estrategia.parametros_secundarios))
-        elif aleatorio < 0.7:
-            return (self.estrategia.mutar_estrategia_debil(), deepcopy(self.estrategia.parametros_secundarios))
-        elif aleatorio < 0.9:
-            return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
+        
         else:
-            return (self.estrategia.parametros_estrategia, self.estrategia.mutar_parametros_secundarios())
-    
+            aleatorio = random.random()
+            if aleatorio < 0.2:
+                return (self.estrategia.mutar_estrategia_muy_debil(), deepcopy(self.estrategia.parametros_secundarios))
+            elif aleatorio < 0.6:
+                return (self.estrategia.mutar_estrategia_debil(), deepcopy(self.estrategia.parametros_secundarios))
+            elif aleatorio < 0.9:
+                return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
+            else:
+                return (self.estrategia.parametros_estrategia, self.estrategia.mutar_parametros_secundarios())
+        
     def simular(self):
         estrategias = []
         estrategias.append(self.estrategia)
         for i in range(ps.NUMERO_SIMULACIONES_PARALELAS - 1):
-            estrtegia = self.generar_nueva_estrategia()
+            estrtegia = self.generar_nueva_estrategia(numero_iteraciones = 1)
             estrtegia = Estrategia(estrtegia[0], estrtegia[1])
             estrategias.append(estrtegia)
         
@@ -73,7 +76,7 @@ class Simulador:
                 lista_estrategias.append(nuva_estrategia)
                 
             for j in range(5, ps.NUMERO_SIMULACIONES_PARALELAS):
-                estrtegia = self.generar_nueva_estrategia()
+                estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
                 estrtegia = Estrategia(estrtegia[0], estrtegia[1])
                 lista_estrategias.append(estrtegia)
             
