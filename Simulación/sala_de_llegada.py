@@ -43,12 +43,12 @@ class ListaDeEspera(SalaDeLLegada):
 
     def simular_jornada(self):
         for i in self.pacientes_atendidos:
-            i.tiempo_atencion_unidad_actual += 0.5
+            i.tiempo_atencion_unidad_actual += 1
 
         self.llegada_de_pacientes()
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
-                paciente.tiempo_atencion_unidad_actual += 0.5  # Se mide en días
+                paciente.tiempo_atencion_unidad_actual += 1  # Se mide en días
                 if paciente.tiempo_atencion_unidad_actual >= self.tiempos_espera[grupo]:
                     self.pacientes_atendidos.append(paciente)
                     self.pacientes_en_atencion[grupo].remove(paciente)
@@ -91,7 +91,7 @@ class ListaDeEspera(SalaDeLLegada):
         costos_totales = 0
         costos_muertos = 0
         for i in self.pacientes_atendidos:
-            costos_muertos += ph.VALOR_RIESGO["WL"][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1] * ps.COSTO_VIDA
+            costos_muertos += ph.VALOR_RIESGO["WL"][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto) + 1] * ps.COSTO_VIDA
         costos_totales += costos_muertos
         return costos_totales, costos_muertos 
 

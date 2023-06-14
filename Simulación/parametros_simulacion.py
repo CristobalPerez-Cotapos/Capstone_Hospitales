@@ -24,7 +24,7 @@ JORNADAS_TRANSIENTE = DIAS_TRANCIENTE * JORNADAS_POR_DIAS
 
 NUMERO_ITERACIONES = 10
 
-SEED = 6969
+SEED = 697669
 
 seed(SEED)
 ID_DIAS_MUESTRAS = [randint(DIAS_TRANCIENTE, DIAS_DE_SIMULACION - 1) for i in range(MUESTRAS_POR_SIMULACION)]
@@ -35,10 +35,10 @@ TIEMPO_ESPERADO_MAXIMO = {1: 0,
                           2: 0,
                           3: 0,
                           4: 0,
-                          5: 27,
-                          6: 26,
-                          7: 26,
-                          8: 26.5,}
+                          5: 54,
+                          6: 52,
+                          7: 52,
+                          8: 53,}
 
 
 

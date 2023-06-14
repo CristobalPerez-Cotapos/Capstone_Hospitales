@@ -63,7 +63,7 @@ class SalaDeAtencion(ABC):
             costos_muertos += self.costo[i.grupo_diagnostico]
             if i.ruta_paciente[1] != "FIN":
                 try:
-                    costos_muertos += ph.VALOR_RIESGO[i.ruta_paciente[0]][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto * 2) + 1] * ps.COSTO_VIDA
+                    costos_muertos += ph.VALOR_RIESGO[i.ruta_paciente[0]][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto) + 1] * ps.COSTO_VIDA
                 except KeyError:
                     print("Pereció la redonda")
                     costos_muertos += ps.COSTO_VIDA
