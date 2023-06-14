@@ -48,7 +48,7 @@ class ListaDeEspera(SalaDeLLegada):
         self.llegada_de_pacientes()
         for grupo in self.pacientes_en_atencion:
             for paciente in self.pacientes_en_atencion[grupo]:
-                paciente.tiempo_atencion_unidad_actual += 1  # Se mide en días
+                paciente.tiempo_atencion_unidad_actual += 1   # Se mide en días
                 if paciente.tiempo_atencion_unidad_actual >= self.tiempos_espera[grupo]:
                     self.pacientes_atendidos.append(paciente)
                     self.pacientes_en_atencion[grupo].remove(paciente)

@@ -9,7 +9,7 @@ class SalaDeAtencion(ABC):
     def __init__(self, hospital:str, costo:dict, capacidad:int):
         super().__init__()
         self.pacientes_en_atencion = {i: [] for i in range(1, 9)}
-        self.pacientes_atendidos = [] # lista de pacientes ya atendidos en el orden en que fueron atendidos
+        self.pacientes_atendidos = []  # lista de pacientes ya atendidos en el orden en que fueron atendidos
         self.costo = costo
         self.capacidad = capacidad
         self.hospital = hospital

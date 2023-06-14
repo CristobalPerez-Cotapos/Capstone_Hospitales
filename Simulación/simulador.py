@@ -91,7 +91,7 @@ class Simulador:
 
             self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
-            #for i in self.estrategia.parametros_estrategia:
+            #for i in self.estrategia.parametros_estrategia: 
             #    print(self.estrategia.parametros_estrategia[i])
             if self.simulaciones[0].promedio_resultados() < mejor_valor:
                 print("Mejor estrategia encontrada")
