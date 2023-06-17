@@ -1,5 +1,6 @@
 from simulacion import Simulacion
 import parametros_simulacion as ps
+import parametros_hospitales as ph
 import random 
 from paciente import Paciente
 from estrategia import Estrategia
@@ -15,7 +16,7 @@ random.seed(ps.SEED)
 # simulacion = Simulador(estrategia)
 # simulacion.simular_mejores_estrategias()
 if __name__ == "__main__":
-    estrategia = Estrategia(ps.PARAMETROS_ESTRATEGIA_PRINCIPALES, ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS)
+    estrategia = Estrategia(ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS)
     simulacion = Simulador(estrategia)
     simulacion.simular()
 # print(simulacion.capacidad_cama_por_simulacion)

@@ -1,5 +1,6 @@
 import random as rd
 from copy import deepcopy
+import parametros_simulacion as ps
 
 class Estrategia:
 
@@ -26,22 +27,40 @@ class Estrategia:
     def generar_punteje_paciente(self, paciente, datos_hospital, datos_WL, hospital):
         parametros = self.parametros_estrategia[paciente.grupo_diagnostico][hospital]
         puntaje = 0
-        for unidad in datos_hospital:
-            for grupo_diagnostico in datos_hospital[unidad][0]: #pacientes en atencion
-                puntaje += datos_hospital[unidad][0][grupo_diagnostico] * parametros[unidad][0][grupo_diagnostico]
-            
-            for grupo_diagnostico in datos_hospital[unidad][1]: #pacientes atendidos en espera
-                puntaje += datos_hospital[unidad][1][grupo_diagnostico] * parametros[unidad][1][grupo_diagnostico]
 
-            # Camas disponibles
-            puntaje += datos_hospital[unidad][2] * parametros[unidad][2]
+# ####
+#         unidades_futura = []
+#         maximo_unidades_futuras = min(ps.NUMERO_UNIDADES_FUTURAS, len(paciente.ruta_paciente), 1)
+#         grupo_diagnostico_persona = paciente.grupo_diagnostico
+        
+#         for i in range(1,maximo_unidades_futuras):
+#             if len(paciente.ruta_paciente) != 0:
+#                 unidades_futura.append(paciente.ruta_paciente[i])
+# ####
 
         datos_WL = datos_WL["WL"]
 
-        for grupo_diagnostico in datos_WL[0]: #pacientes en lista de espera
-            puntaje += datos_WL[0][grupo_diagnostico] * self.parametros_estrategia[paciente.grupo_diagnostico]["WL"]["WL"][0][grupo_diagnostico]
-        for grupo_diagnostico in datos_WL[1]:
-            puntaje += datos_WL[1][grupo_diagnostico] * self.parametros_estrategia[paciente.grupo_diagnostico]["WL"]["WL"][1][grupo_diagnostico]
+        for unidad in datos_hospital:
+            for i in range(0,2):
+                for grupo_diagnostico in datos_hospital[unidad][i]: 
+                    puntaje += datos_hospital[unidad][i][grupo_diagnostico] * parametros[unidad][i][grupo_diagnostico]
+                for grupo_diagnostico in datos_WL[i]: 
+                    puntaje += datos_WL[i][grupo_diagnostico] * self.parametros_estrategia[paciente.grupo_diagnostico]["WL"]["WL"][i][grupo_diagnostico]
+        
+            # Camas disponibles
+            puntaje += datos_hospital[unidad][2] * parametros[unidad][2]
+
+# ###
+#         for unidad in unidades_futura:
+#             for grupo_diagnostico in datos_hospital[unidad][0]: #pacientes en atencion
+#                 puntaje += datos_hospital[unidad][0][grupo_diagnostico_persona] * parametros[unidad][0][grupo_diagnostico]
+#             for grupo_diagnostico in datos_hospital[unidad][1]: #pacientes atendidos en espera
+#                 puntaje += datos_hospital[unidad][1][grupo_diagnostico_persona] * parametros[unidad][1][grupo_diagnostico]
+#             for grupo_diagnostico in datos_WL[0]: #pacientes en lista de espera
+#                 puntaje += datos_WL[0][grupo_diagnostico_persona] * self.parametros_estrategia[paciente.grupo_diagnostico]["WL"]["WL"][0][grupo_diagnostico]
+#             for grupo_diagnostico in datos_WL[1]:
+#                 puntaje += datos_WL[1][grupo_diagnostico_persona] * self.parametros_estrategia[paciente.grupo_diagnostico]["WL"]["WL"][1][grupo_diagnostico]
+# ###
         return puntaje
     
     def mutar_estrategia_fuerte(self):
@@ -49,10 +68,9 @@ class Estrategia:
         for grupo_diagnostico in nueva_estrategia:
             for hospital in nueva_estrategia[grupo_diagnostico]:
                 for unidad in nueva_estrategia[grupo_diagnostico][hospital]:
-                    for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][0]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-20, 20)
-                    for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][1]:
-                        nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-20, 20)
+                    for i in range(0,2):
+                        for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][i]:
+                            nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] + rd.uniform(-20, 20)
                     nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-20, 20)
         return nueva_estrategia 
     
@@ -74,10 +92,9 @@ class Estrategia:
         grupo_diagnostico = rd.choice(list(nueva_estrategia.keys()))
         hospital = rd.choice(list(nueva_estrategia[grupo_diagnostico].keys()))
         unidad = rd.choice(list(nueva_estrategia[grupo_diagnostico][hospital].keys()))
-        for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][0]:
-            nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][0][grupo] + rd.uniform(-5, 5)
-        for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][1]:
-            nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][1][grupo] + rd.uniform(-5, 5)
+        for i in range(0,2):
+            for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][i]:
+                nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] + rd.uniform(-5, 5)
         nueva_estrategia[grupo_diagnostico][hospital][unidad][2] = nueva_estrategia[grupo_diagnostico][hospital][unidad][2] + rd.uniform(-5, 5)
         return nueva_estrategia
     

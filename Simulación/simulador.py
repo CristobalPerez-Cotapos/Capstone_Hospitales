@@ -1,6 +1,7 @@
 from simulacion import Simulacion
 from estrategia import Estrategia
 import parametros_simulacion as ps
+import parametros_hospitales as ph
 import random
 from abrir_json import Archivos as ar
 from threading import Thread
@@ -54,7 +55,7 @@ class Simulador:
         manager = mp.Manager()
         resultados_simulaciones = manager.list()
         simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in estrategias]
-        pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
+        pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
         
 
         pool.map(Simulacion.simular_miltiples_veces, simulaciones)
@@ -69,13 +70,13 @@ class Simulador:
         
         for i in range(ps.NUMERO_ITERACIONES):
             lista_estrategias = []
-            for j in range(5):
+            for j in range(ps.NUMERO_SIMULACIONES_MEZCLA):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
                 parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
                 nuva_estrategia = Estrategia(nuva_estrategia, parametros_secundarios)
                 lista_estrategias.append(nuva_estrategia)
                 
-            for j in range(5, ps.NUMERO_SIMULACIONES_PARALELAS):
+            for j in range(ps.NUMERO_SIMULACIONES_MEZCLA, ps.NUMERO_SIMULACIONES_PARALELAS):
                 estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
                 estrtegia = Estrategia(estrtegia[0], estrtegia[1])
                 lista_estrategias.append(estrtegia)
@@ -83,7 +84,7 @@ class Simulador:
             manager = mp.Manager()
             resultados_simulaciones = manager.list()
             simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in lista_estrategias]
-            pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
+            pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
             pool.map(Simulacion.simular_miltiples_veces, simulaciones)
             resultados = list(resultados_simulaciones)
             for simulacion in resultados:
@@ -113,7 +114,7 @@ class Simulador:
             self.resultados_estrategias[f"Estrategia {self.simulaciones[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
 
         diccionario_estrategias = {}
-        diccionario_estrategias[f"Estrategia Inicial"] = {"Parametros principales" : ps.PARAMETROS_ESTRATEGIA_PRINCIPALES, "Parametros secundarios" : ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS}
+        diccionario_estrategias[f"Estrategia Inicial"] = {"Parametros principales" : ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, "Parametros secundarios" : ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS}
         for simulacion_e in self.simulaciones[:10]:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
         
