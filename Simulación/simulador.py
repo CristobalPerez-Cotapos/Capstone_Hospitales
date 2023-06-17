@@ -55,9 +55,8 @@ class Simulador:
         manager = mp.Manager()
         resultados_simulaciones = manager.list()
         simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in estrategias]
-        pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
+        pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
         
-
         pool.map(Simulacion.simular_miltiples_veces, simulaciones)
         resultados = list(resultados_simulaciones)
         for simulacion in resultados:
@@ -66,6 +65,7 @@ class Simulador:
         self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
         print(f"Funcion objetivo: {self.simulaciones[0].promedio_resultados()} iteracion 0")
         self.mejor_estrategia = self.simulaciones[0]
+        self.estrategia = self.simulaciones[0].estrategia
         mejor_valor = self.simulaciones[0].promedio_resultados()
         
         for i in range(ps.NUMERO_ITERACIONES):
@@ -84,13 +84,17 @@ class Simulador:
             manager = mp.Manager()
             resultados_simulaciones = manager.list()
             simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in lista_estrategias]
-            pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
+            pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
             pool.map(Simulacion.simular_miltiples_veces, simulaciones)
             resultados = list(resultados_simulaciones)
+            lista_prueba_simulaciones = []
             for simulacion in resultados:
                 self.simulaciones.append(simulacion)
-
+                lista_prueba_simulaciones.append(simulacion)
+            
             self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
+            lista_prueba_simulaciones = sorted(lista_prueba_simulaciones, key=lambda x: x.promedio_resultados())
+            self.estrategia = lista_prueba_simulaciones[0].estrategia
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
             #for i in self.estrategia.parametros_estrategia: 
             #    print(self.estrategia.parametros_estrategia[i])
@@ -115,7 +119,7 @@ class Simulador:
 
         diccionario_estrategias = {}
         diccionario_estrategias[f"Estrategia Inicial"] = {"Parametros principales" : ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, "Parametros secundarios" : ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS}
-        for simulacion_e in self.simulaciones[:10]:
+        for simulacion_e in self.simulaciones[:30]:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
         
         ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
@@ -152,13 +156,11 @@ class Simulador:
             self.derivaciones_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].derivaciones
             self.pacientes_atendidos_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].pacientes_esperando
 
-        
         diccionario = {}
         diccionario['Costos muertos diarios'] = self.costos_muertos_hospitales_diarios_estrategias
         diccionario['Espera WL'] = self.espera_WL_estrategias
         diccionario['Derivaciones'] = self.derivaciones_estrategias
         diccionario['Pacientes esperando'] = self.pacientes_atendidos_estrategias
-
 
         diccionario_resultados = {}
 
