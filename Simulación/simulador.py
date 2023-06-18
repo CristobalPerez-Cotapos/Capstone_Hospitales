@@ -55,7 +55,7 @@ class Simulador:
         manager = mp.Manager()
         resultados_simulaciones = manager.list()
         simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in estrategias]
-        pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
+        pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
         
 
         pool.map(Simulacion.simular_miltiples_veces, simulaciones)
@@ -85,7 +85,7 @@ class Simulador:
             manager = mp.Manager()
             resultados_simulaciones = manager.list()
             simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in lista_estrategias]
-            pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
+            pool = mp.Pool(processes = ps.NUMERO_CORAZONES)
             pool.map(Simulacion.simular_miltiples_veces, simulaciones)
             resultados = list(resultados_simulaciones)
             lista_simulaciones = []
