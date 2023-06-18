@@ -36,13 +36,13 @@ class Simulador:
         else:
             aleatorio = random.random()
             if aleatorio < 0.2:
-                return (self.estrategia.mutar_estrategia_muy_debil(), deepcopy(self.estrategia.parametros_secundarios))
-            elif aleatorio < 0.5:
                 return (self.estrategia.mutar_estrategia_debil(), deepcopy(self.estrategia.parametros_secundarios))
-            elif aleatorio < 0.8:
-                return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
-            else:
+            elif aleatorio < 0.6:
                 return (self.estrategia.mutar_estrategia_media_tipo_paciente(), deepcopy(self.estrategia.parametros_secundarios))
+            elif aleatorio < 0.9:
+                return (self.estrategia.mutar_estrategia_media_unidad(), deepcopy(self.estrategia.parametros_secundarios))
+            else:
+                return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
         
     def simular(self):
         estrategias = []
@@ -107,10 +107,29 @@ class Simulador:
                 self.estrategia = Estrategia(self.mejor_diccionario_estrategia, self.mejores_parametros_secundarios)
                 self.mejor_estrategia = self.simulaciones[0]
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
+            if i % 10 == 0:
+                lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
+        
+                for j in range(min(len(self.simulaciones), 30)):
+                    diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
+                    for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
+                        for kpi in lista_KPIs:
+                            diccionario_auxiliar[kpi][f"Simulación {i}"] = self.simulaciones[j].diccionario_resultados[f"Simulación {i}"][kpi]
+
+                    self.resultados_estrategias[f"Estrategia {self.simulaciones[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
+
+                diccionario_estrategias = {}
+                diccionario_estrategias[f"Estrategia Inicial"] = {"Parametros principales" : ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, "Parametros secundarios" : ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS}
+                for simulacion_e in self.simulaciones[:30]:
+                    diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
+                
+                ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
+                ar("None").guardar_resultados(diccionario_estrategias, "estrategias.json")   # guarda las mejores estrategias en un diccionario
+                print(f"Funcion objetivo: {mejor_valor}")
                 
         lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
         
-        for j in range(ps.NUMERO_ITERACIONES):
+        for j in range(min(len(self.simulaciones), 30)):
             diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
             for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
                 for kpi in lista_KPIs:

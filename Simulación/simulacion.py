@@ -256,9 +256,10 @@ class Simulacion:
             self.diccionario_resultados_jornada["Costos jornada"][self.jornadas_transcurridas] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
     def generar_puntaje_paciente(self, paciente, hospital_actual_ED=""):
         max_puntaje = -1000000000000000000
+        informacion = self.recopilar_informacion()
         for hospital in self.hospitales:
-            datos = self.recopilar_informacion()[hospital.nombre]
-            datos_WL = self.recopilar_informacion()["WL"]
+            datos = informacion[hospital.nombre]
+            datos_WL = informacion["WL"]
             puntaje = self.estrategia.generar_punteje_paciente(paciente, datos, datos_WL, hospital.nombre)
             if hospital.nombre == hospital_actual_ED:
                 puntaje += self.estrategia.parametros_secundarios["BUFFER"][hospital.nombre]
