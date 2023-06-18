@@ -142,7 +142,9 @@ class Estrategia:
             nueva_estrategia[llave][hospital] = nueva_estrategia[llave][hospital] + rd.uniform(-2, 2)
 
         elif llave == "NUMERO INICIO POLITICA":
-            nueva_estrategia[llave][hospital] = max(nueva_estrategia[llave][hospital] + rd.randint(-2, 2), 0)
+            lista = ["OR","ICU","SDU_WARD"]
+            for unidad in lista:
+                nueva_estrategia[llave][hospital][unidad] = max(nueva_estrategia[llave][hospital][unidad] + rd.randint(-2, 2), 0)
 
         elif llave == "NUMERO INICIO POLITICA ED":
             nueva_estrategia[llave][hospital] = max(nueva_estrategia[llave][hospital] + rd.randint(-2, 2), 0)

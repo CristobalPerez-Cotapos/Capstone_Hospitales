@@ -35,11 +35,13 @@ class Simulador:
         
         else:
             aleatorio = random.random()
-            if aleatorio < 0.2:
+            if aleatorio < 0.1:
+                return (deepcopy(self.estrategia.parametros_estrategia), self.estrategia.mutar_parametros_secundarios())
+            elif aleatorio < 0.2:
                 return (self.estrategia.mutar_estrategia_debil(), deepcopy(self.estrategia.parametros_secundarios))
-            elif aleatorio < 0.6:
+            elif aleatorio < 0.5:
                 return (self.estrategia.mutar_estrategia_media_tipo_paciente(), deepcopy(self.estrategia.parametros_secundarios))
-            elif aleatorio < 0.9:
+            elif aleatorio < 0.8:
                 return (self.estrategia.mutar_estrategia_media_unidad(), deepcopy(self.estrategia.parametros_secundarios))
             else:
                 return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
