@@ -227,7 +227,7 @@ class Simulacion:
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()
             elif (hospital.admision.camas_disponibles > 0 
-                  and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre]):
+                  and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
                 self.lista_de_espera.retirar_paciente(paciente)
                 hospital.admision.agregar_paciente(paciente)
                 hospital.desplazamiento_entre_unidades()

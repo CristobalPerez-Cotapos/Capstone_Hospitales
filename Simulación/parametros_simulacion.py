@@ -7,17 +7,17 @@ cpu_info = psutil.cpu_count()
 
 ######### IMPORTANTES
 
-NUMERO_CORAZONES =  math.trunc(cpu_info)
+NUMERO_CORAZONES =  6
 DIAS_DE_SIMULACION = 500
-SIMULACIONES_POR_ESTRATEGIA = 6
-NUMERO_SIMULACIONES_PARALELAS = 10
+SIMULACIONES_POR_ESTRATEGIA = 5
+NUMERO_SIMULACIONES_PARALELAS = 5
 # NUMERO_UNIDADES_FUTURAS = 1 #####
-NUMERO_ITERACIONES = 10
+NUMERO_ITERACIONES = 30
 
 ######### CAMBIAR ESTOOOOOOO
 #########
 COSTO_VIDA = 6266 # TRINI=0, DANI=500, JAVI=3133, PANCHO=62660
-SEED = 69 # TRINI=11117, DANI=22227, JAVI=333337, PANCHO=44447
+SEED = 610579 # TRINI=11117, DANI=22227, JAVI=333337, PANCHO=44447
 #########
 #########
 
@@ -60,9 +60,21 @@ PARAMETROS_ESTRATEGIA_SECUNDARIOS = {
     },
 
     "NUMERO INICIO POLITICA": {
-        "H_1": 6,
-        "H_2": 6,
-        "H_3": 6,
+        "H_1": {
+            "SDU_WARD": 6,
+            "ICU": 4,
+            "OR": 3,
+        },
+        "H_2": {
+            "SDU_WARD": 6,
+            "ICU": 3,
+            "OR": 2,
+        },
+        "H_3": {
+            "SDU_WARD": 6,
+            "ICU": 3,
+            "OR": 2,
+        }
     },
 
      "NUMERO INICIO POLITICA ED": {

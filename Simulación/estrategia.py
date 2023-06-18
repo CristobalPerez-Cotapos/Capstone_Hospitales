@@ -1,7 +1,7 @@
 import random as rd
 from copy import deepcopy
 import parametros_simulacion as ps
-
+import parametros_hospitales as ph
 class Estrategia:
 
     id = 0
@@ -86,6 +86,28 @@ class Estrategia:
         else:
             nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] = nueva_estrategia[grupo_diagnostico][hospital][unidad][indice] + rd.uniform(-20, 20)
         return nueva_estrategia
+    def mutar_estrategia_media_unidad(self):
+        nueva_estrategia = deepcopy(self.parametros_estrategia)
+        unidad = rd.choice(["ICU","SDU_WARD","OR"])
+        numero = rd.uniform(-10, 10)
+        for grupo_diagnostico in nueva_estrategia:
+            for hospital in nueva_estrategia[grupo_diagnostico]:
+                if hospital != "WL":
+                    for i in range(0,2):
+                        for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][i]:
+                            nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] + numero
+        return nueva_estrategia
+    
+    def mutar_estrategia_media_tipo_paciente(self):
+        nueva_estrategia = deepcopy(self.parametros_estrategia)
+        grupo_diagnostico = rd.choice(list(nueva_estrategia.keys()))
+        numero = rd.uniform(-10, 10)
+        for hospital in nueva_estrategia[grupo_diagnostico]:
+            for unidad in nueva_estrategia[grupo_diagnostico][hospital]:
+                for i in range(0,2):
+                    for grupo in nueva_estrategia[grupo_diagnostico][hospital][unidad][i]:
+                        nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] = nueva_estrategia[grupo_diagnostico][hospital][unidad][i][grupo] + numero
+        return nueva_estrategia
     
     def mutar_estrategia_debil(self):
         nueva_estrategia = deepcopy(self.parametros_estrategia)
@@ -131,7 +153,5 @@ class Estrategia:
         
 
         
-
-    
 
     

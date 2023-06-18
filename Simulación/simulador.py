@@ -37,12 +37,12 @@ class Simulador:
             aleatorio = random.random()
             if aleatorio < 0.2:
                 return (self.estrategia.mutar_estrategia_muy_debil(), deepcopy(self.estrategia.parametros_secundarios))
-            elif aleatorio < 0.6:
+            elif aleatorio < 0.5:
                 return (self.estrategia.mutar_estrategia_debil(), deepcopy(self.estrategia.parametros_secundarios))
-            elif aleatorio < 0.9:
+            elif aleatorio < 0.8:
                 return (self.estrategia.mutar_estrategia_media(), deepcopy(self.estrategia.parametros_secundarios))
             else:
-                return (self.estrategia.parametros_estrategia, self.estrategia.mutar_parametros_secundarios())
+                return (self.estrategia.mutar_estrategia_media_tipo_paciente(), deepcopy(self.estrategia.parametros_secundarios))
         
     def simular(self):
         estrategias = []
@@ -57,6 +57,7 @@ class Simulador:
         simulaciones = [Simulacion(estrategia, resultados_simulaciones) for estrategia in estrategias]
         pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
         
+
         pool.map(Simulacion.simular_miltiples_veces, simulaciones)
         resultados = list(resultados_simulaciones)
         for simulacion in resultados:
@@ -65,11 +66,11 @@ class Simulador:
         self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
         print(f"Funcion objetivo: {self.simulaciones[0].promedio_resultados()} iteracion 0")
         self.mejor_estrategia = self.simulaciones[0]
-        self.estrategia = self.simulaciones[0].estrategia
         mejor_valor = self.simulaciones[0].promedio_resultados()
         
         for i in range(ps.NUMERO_ITERACIONES):
             lista_estrategias = []
+            random.seed(ps.SEED * (i + 1))
             for j in range(ps.NUMERO_SIMULACIONES_MEZCLA):
                 nuva_estrategia = self.mezclar_estrategias(self.simulaciones[j].estrategia.parametros_estrategia, self.simulaciones[j+1].estrategia.parametros_estrategia)
                 parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
@@ -87,15 +88,14 @@ class Simulador:
             pool = mp.Pool(processes = ps.NUMERO_SIMULACIONES_PARALELAS)
             pool.map(Simulacion.simular_miltiples_veces, simulaciones)
             resultados = list(resultados_simulaciones)
-            lista_prueba_simulaciones = []
+            lista_simulaciones = []
             for simulacion in resultados:
                 self.simulaciones.append(simulacion)
-                lista_prueba_simulaciones.append(simulacion)
-            
+                lista_simulaciones.append(simulacion)
+
             self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
-            lista_prueba_simulaciones = sorted(lista_prueba_simulaciones, key=lambda x: x.promedio_resultados())
-            self.estrategia = lista_prueba_simulaciones[0].estrategia
-            print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
+            lista_simulaciones = sorted(lista_simulaciones, key=lambda x: x.promedio_resultados())
+            self.estrategia = lista_simulaciones[0].estrategia
             #for i in self.estrategia.parametros_estrategia: 
             #    print(self.estrategia.parametros_estrategia[i])
             if self.simulaciones[0].promedio_resultados() < mejor_valor:
@@ -106,6 +106,7 @@ class Simulador:
                 self.mejores_parametros_secundarios = deepcopy(self.simulaciones[0].estrategia.parametros_secundarios)
                 self.estrategia = Estrategia(self.mejor_diccionario_estrategia, self.mejores_parametros_secundarios)
                 self.mejor_estrategia = self.simulaciones[0]
+            print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
                 
         lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
         
@@ -156,11 +157,13 @@ class Simulador:
             self.derivaciones_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].derivaciones
             self.pacientes_atendidos_estrategias[f"Estrategia {simulaciones[i].estrategia.id}"] = simulaciones[i].pacientes_esperando
 
+        
         diccionario = {}
         diccionario['Costos muertos diarios'] = self.costos_muertos_hospitales_diarios_estrategias
         diccionario['Espera WL'] = self.espera_WL_estrategias
         diccionario['Derivaciones'] = self.derivaciones_estrategias
         diccionario['Pacientes esperando'] = self.pacientes_atendidos_estrategias
+
 
         diccionario_resultados = {}
 
