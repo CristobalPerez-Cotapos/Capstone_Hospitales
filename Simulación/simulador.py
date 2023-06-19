@@ -19,7 +19,7 @@ class Simulador:
         self.resultados_estrategias = {}
         self.estrategia_base = estrategia_inicial
         self.mejor_estrategia = estrategia_inicial
-
+        self.simulacion_base = None
     def crear_simulacion(self):
         simulacion = Simulacion(self.estrategia)
         simulacion.simular_miltiples_veces()
@@ -63,7 +63,10 @@ class Simulador:
         pool.map(Simulacion.simular_miltiples_veces, simulaciones)
         resultados = list(resultados_simulaciones)
         for simulacion in resultados:
+            if simulacion.estrategia.id == self.estrategia.id:
+                self.simulacion_base = simulacion
             self.simulaciones.append(simulacion)
+        
 
         self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
         print(f"Funcion objetivo: {self.simulaciones[0].promedio_resultados()} iteracion 0")
@@ -111,18 +114,30 @@ class Simulador:
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
             if i % 10 == 0:
                 lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
-        
-                for j in range(min(len(self.simulaciones), 30)):
+                self.resultados_estrategias = []
+                mejores_resultados = []
+                mejores_estrategias = []
+                i = 0
+                while len(mejores_resultados) < 10 and i < len(self.simulaciones):
+                    if self.simulaciones[i].promedio_resultados() not in mejores_resultados:
+                        mejores_resultados.append(self.simulaciones[i].promedio_resultados())
+                        mejores_estrategias.append(self.simulaciones[i])
+                    i += 1
+
+                for j in range(mejores_estrategias):
                     diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
                     for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
                         for kpi in lista_KPIs:
-                            diccionario_auxiliar[kpi][f"Simulación {i}"] = self.simulaciones[j].diccionario_resultados[f"Simulación {i}"][kpi]
+                            diccionario_auxiliar[kpi][f"Simulación {i}"] = mejores_estrategias[j].diccionario_resultados[f"Simulación {i}"][kpi]
 
-                    self.resultados_estrategias[f"Estrategia {self.simulaciones[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
-
+                    self.resultados_estrategias[f"Estrategia {mejores_estrategias[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
+                diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
+                for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
+                    for kpi in lista_KPIs:
+                        diccionario_auxiliar[kpi][f"Simulación {i}"] = self.simulacion_base.diccionario_resultados[f"Simulación {i}"][kpi]
                 diccionario_estrategias = {}
                 diccionario_estrategias[f"Estrategia Inicial"] = {"Parametros principales" : ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, "Parametros secundarios" : ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS}
-                for simulacion_e in self.simulaciones[:30]:
+                for simulacion_e in mejores_estrategias:
                     diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
                 
                 ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
@@ -130,18 +145,30 @@ class Simulador:
                 print(f"Funcion objetivo: {mejor_valor}")
                 
         lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
-        
-        for j in range(min(len(self.simulaciones), 30)):
+        self.resultados_estrategias = []
+        mejores_resultados = []
+        mejores_estrategias = []
+        i = 0
+        while len(mejores_resultados) < 10 and i < len(self.simulaciones):
+            if self.simulaciones[i].promedio_resultados() not in mejores_resultados:
+                mejores_resultados.append(self.simulaciones[i].promedio_resultados())
+                mejores_estrategias.append(self.simulaciones[i])
+            i += 1
+
+        for j in range(mejores_estrategias):
             diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
             for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
                 for kpi in lista_KPIs:
-                    diccionario_auxiliar[kpi][f"Simulación {i}"] = self.simulaciones[j].diccionario_resultados[f"Simulación {i}"][kpi]
+                    diccionario_auxiliar[kpi][f"Simulación {i}"] = mejores_estrategias[j].diccionario_resultados[f"Simulación {i}"][kpi]
 
-            self.resultados_estrategias[f"Estrategia {self.simulaciones[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
-
+            self.resultados_estrategias[f"Estrategia {mejores_estrategias[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
+        diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
+        for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
+            for kpi in lista_KPIs:
+                diccionario_auxiliar[kpi][f"Simulación {i}"] = self.simulacion_base.diccionario_resultados[f"Simulación {i}"][kpi]
         diccionario_estrategias = {}
         diccionario_estrategias[f"Estrategia Inicial"] = {"Parametros principales" : ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, "Parametros secundarios" : ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS}
-        for simulacion_e in self.simulaciones[:30]:
+        for simulacion_e in mejores_estrategias:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
         
         ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
