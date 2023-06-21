@@ -16,14 +16,14 @@ for i in range(1,9):
             valor = sp.lognorm.rvs(s=parametros[0], 
                                 loc=parametros[1],
                                 scale=parametros[2],
-                                    size=1000)
+                                    size=100)
         elif distribucion == "beta":
 
             valor = sp.beta.rvs(a=parametros[0],
                                 b=parametros[1],
                                 loc=parametros[2],
                                 scale=parametros[3],
-                                size=1000)
+                                size=100)
             
         print(f"Unidad: {unidad} - i: {i}")
-        print(valor.mean())
+        print(valor)

@@ -81,9 +81,19 @@ class Simulador:
                 parametros_secundarios = self.simulaciones[j].estrategia.parametros_secundarios if random.random() < 0.5 else self.simulaciones[j+1].estrategia.parametros_secundarios
                 nuva_estrategia = Estrategia(nuva_estrategia, parametros_secundarios)
                 lista_estrategias.append(nuva_estrategia)
-                
+            
             for j in range(ps.NUMERO_SIMULACIONES_MEZCLA, ps.NUMERO_SIMULACIONES_PARALELAS):
-                estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
+                if i != 0:
+                    if j <= 3:
+                        estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
+                    elif j <= 5:
+                        self.estrategia = estrategia2
+                        estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
+                    else:
+                        self.estrategia = estrategia3
+                        estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
+                else:
+                    estrtegia = self.generar_nueva_estrategia(numero_iteraciones = i + 1)
                 estrtegia = Estrategia(estrtegia[0], estrtegia[1])
                 lista_estrategias.append(estrtegia)
             
@@ -101,6 +111,10 @@ class Simulador:
             self.simulaciones = sorted(self.simulaciones, key=lambda x: x.promedio_resultados())
             lista_simulaciones = sorted(lista_simulaciones, key=lambda x: x.promedio_resultados())
             self.estrategia = lista_simulaciones[0].estrategia
+            num1 = random.randint(0,5)
+            num2 = random.randint(0,5)
+            estrategia2 = lista_simulaciones[num1].estrategia
+            estrategia3 = lista_simulaciones[num2].estrategia
             #for i in self.estrategia.parametros_estrategia: 
             #    print(self.estrategia.parametros_estrategia[i])
             if self.simulaciones[0].promedio_resultados() < mejor_valor:
@@ -114,7 +128,7 @@ class Simulador:
             print(f"Funcion objetivo: {mejor_valor} iteracion {i + 1} id estrategia {self.estrategia.id}\n")
             if i % 10 == 0:
                 lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
-                self.resultados_estrategias = []
+                self.resultados_estrategias = {}
                 mejores_resultados = []
                 mejores_estrategias = []
                 i = 0
@@ -124,7 +138,7 @@ class Simulador:
                         mejores_estrategias.append(self.simulaciones[i])
                     i += 1
 
-                for j in range(mejores_estrategias):
+                for j in range(len(mejores_estrategias)):
                     diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
                     for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
                         for kpi in lista_KPIs:
@@ -140,12 +154,12 @@ class Simulador:
                 for simulacion_e in mejores_estrategias:
                     diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
                 
-                ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
-                ar("None").guardar_resultados(diccionario_estrategias, "estrategias.json")   # guarda las mejores estrategias en un diccionario
+                ar("None").guardar_resultados(self.resultados_estrategias, "anda.json")   # guarda los resultados de las mejores estrategias
+                ar("None").guardar_resultados(diccionario_estrategias, "anda2.json")   # guarda las mejores estrategias en un diccionario
                 print(f"Funcion objetivo: {mejor_valor}")
                 
         lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
-        self.resultados_estrategias = []
+        self.resultados_estrategias = {}
         mejores_resultados = []
         mejores_estrategias = []
         i = 0
@@ -155,7 +169,7 @@ class Simulador:
                 mejores_estrategias.append(self.simulaciones[i])
             i += 1
 
-        for j in range(mejores_estrategias):
+        for j in range(len(mejores_estrategias)):
             diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
             for i in range (1, ps.SIMULACIONES_POR_ESTRATEGIA + 1):
                 for kpi in lista_KPIs:
@@ -171,8 +185,8 @@ class Simulador:
         for simulacion_e in mejores_estrategias:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
         
-        ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
-        ar("None").guardar_resultados(diccionario_estrategias, "estrategias.json")   # guarda las mejores estrategias en un diccionario
+        ar("None").guardar_resultados(self.resultados_estrategias, "anda.json")   # guarda los resultados de las mejores estrategias
+        ar("None").guardar_resultados(diccionario_estrategias, "anda2.json")   # guarda las mejores estrategias en un diccionario
         print(f"Funcion objetivo: {mejor_valor}")
         
 

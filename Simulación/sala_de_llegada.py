@@ -58,7 +58,7 @@ class ListaDeEspera(SalaDeLLegada):
                     self.total_de_pacientes_para_ingresar += 1
 
     def pacientes_listos_para_trasladar(self, unidad):
-        return copy(self.pacientes_atendidos)
+        return self.pacientes_atendidos
     
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)

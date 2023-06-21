@@ -17,6 +17,7 @@ class SalaDeAtencion(ABC):
         self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
         self.total_de_pacientes_en_atencion = 0
         self.total_de_pacientes_atendidos = 0
+        self.diccionario_tiempos_espera = {i: [] for i in range(1, 9)}
 
     @property
     def total_de_pacientes(self):
@@ -30,6 +31,7 @@ class SalaDeAtencion(ABC):
         paciente.tiempo_espera(paciente.grupo_diagnostico, paciente.ruta_paciente[0])
         paciente.ruta_paciente.pop(0)
         paciente.tiempo_atencion_unidad_actual = 0
+        self.diccionario_tiempos_espera[paciente.grupo_diagnostico].append(paciente.tiempo_a_esperar)
         self.pacientes_en_atencion[paciente.grupo_diagnostico].append(paciente)
         self.cantidad_de_pacientes_por_grupo_en_atencion[paciente.grupo_diagnostico] += 1
         self.total_de_pacientes_en_atencion += 1
