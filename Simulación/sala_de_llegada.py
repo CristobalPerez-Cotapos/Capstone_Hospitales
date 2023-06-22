@@ -160,6 +160,7 @@ class Urgencias(SalaDeLLegada):
                 elif puntaje > 0:
                     self.simuacion.trasladar_paciente(paciente, hospital)
                 else:
+                    print("Entre aqui ?")
                     self.simuacion.derivar_paciente(paciente, ED=True)
             else:
                 self.agregar_paciente(paciente)

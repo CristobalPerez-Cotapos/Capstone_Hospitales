@@ -225,14 +225,14 @@ class Archivos:
             diccionario = json.load(archivo)
         diccionario_auxiliar = {}
         for key in diccionario.keys():
-            diccionario_auxiliar[key] = {}
-            for key2 in diccionario[key].keys():
-                diccionario_auxiliar[key][int(key2)] = {}
-                for key3 in diccionario[key][key2].keys():
-                    diccionario_auxiliar[key][int(key2)][key3] = {}
-                    for key4 in diccionario[key][key2][key3].keys():
+            diccionario_auxiliar[key] = {"Parametros principales": {}, "Parametros secundarios": {}}
+            for key2 in diccionario[key]["Parametros principales"].keys():
+                diccionario_auxiliar[key]["Parametros principales"][int(key2)] = {}
+                for key3 in diccionario[key]["Parametros principales"][key2].keys():
+                    diccionario_auxiliar[key]["Parametros principales"][int(key2)][key3] = {}
+                    for key4 in diccionario[key]["Parametros principales"][key2][key3].keys():
                         lista = []
-                        for elemento in diccionario[key][key2][key3][key4]:
+                        for elemento in diccionario[key]["Parametros principales"][key2][key3][key4]:
                             dicc = {}
                             if isinstance(elemento, dict):
                                 for llave in elemento.keys():
@@ -240,7 +240,8 @@ class Archivos:
                                 lista.append(dicc)
                             else:
                                 lista.append(elemento)
-                        diccionario_auxiliar[key][int(key2)][key3][key4] = lista
+                        diccionario_auxiliar[key]["Parametros principales"][int(key2)][key3][key4] = lista
+            diccionario_auxiliar[key]["Parametros secundarios"] = diccionario[key]["Parametros secundarios"]
 
         return diccionario_auxiliar
 
@@ -257,3 +258,4 @@ class Archivos:
         ruta = join(nombre_archivo)
         with open(ruta, 'w') as archivo:
             json.dump(diccionario, archivo)
+
