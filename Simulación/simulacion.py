@@ -226,41 +226,65 @@ class Simulacion:
 
     def trasladar_pacientes_lista_de_espera(self):
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
-        for paciente in pacientes_listos:
-            
-            puntajes, hospitales = self.generar_puntaje_paciente(paciente)
-            ruta = paciente.ruta_paciente[1]
-            condicion = False
-            indice = 0
-            while not condicion:
-                hospital = hospitales[indice]
-                for unidad in hospital.lista_de_unidades:
-                    if unidad.codigo == ruta:
-                        unidad_paciente = unidad
-                puntaje = puntajes[indice]
-                if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
-                    self.lista_de_espera.retirar_paciente(paciente)
-                    hospital.admision.agregar_paciente(paciente)
-                    hospital.desplazamiento_entre_unidades()
-                    condicion = True
-                elif (hospital.admision.camas_disponibles > 0 
-                    and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
-                    self.lista_de_espera.retirar_paciente(paciente)
-                    hospital.admision.agregar_paciente(paciente)
-                    hospital.desplazamiento_entre_unidades()
-                    condicion = True
-                elif puntaje < 0:
-                    self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
-
-                    self.derivar_paciente(paciente)
-                    condicion = True
-                else:
-                    if indice == 2:
+        if self.estrategia.id == 0:
+            for paciente in pacientes_listos:
+                ruta = paciente.ruta_paciente[1]
+                if paciente.tiempo_esperado_muerto >= 51:
+                    hospitales_camas = []
+                    for hospital in self.hospitales:
+                        for unidad in hospital.lista_de_unidades:
+                            if unidad.codigo == ruta:
+                                unidad_paciente = unidad
+                        hospitales_camas.append([hospital, unidad_paciente.camas_disponibles])
+                    hospitales_camas.sort(key=lambda x: x[1], reverse=True)
+                    if hospitales_camas[0][1] > 0:
+                        self.lista_de_espera.retirar_paciente(paciente)
+                        hospitales_camas[0][0].admision.agregar_paciente(paciente)
+                        hospitales_camas[0][0].desplazamiento_entre_unidades()
+                    else:
                         if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
                             self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
                             self.derivar_paciente(paciente)
+
+                        
+
+
+        else:
+            for paciente in pacientes_listos:
+                
+                puntajes, hospitales = self.generar_puntaje_paciente(paciente)
+                ruta = paciente.ruta_paciente[1]
+                condicion = False
+                indice = 0
+                while not condicion:
+                    hospital = hospitales[indice]
+                    for unidad in hospital.lista_de_unidades:
+                        if unidad.codigo == ruta:
+                            unidad_paciente = unidad
+                    puntaje = puntajes[indice]
+                    if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
+                        self.lista_de_espera.retirar_paciente(paciente)
+                        hospital.admision.agregar_paciente(paciente)
+                        hospital.desplazamiento_entre_unidades()
                         condicion = True
-                indice += 1
+                    elif (hospital.admision.camas_disponibles > 0 
+                        and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
+                        self.lista_de_espera.retirar_paciente(paciente)
+                        hospital.admision.agregar_paciente(paciente)
+                        hospital.desplazamiento_entre_unidades()
+                        condicion = True
+                    elif puntaje < 0:
+                        self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
+
+                        self.derivar_paciente(paciente)
+                        condicion = True
+                    else:
+                        if indice == 2:
+                            if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
+                                self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
+                                self.derivar_paciente(paciente)
+                            condicion = True
+                    indice += 1
 
     def derivar_paciente(self, paciente, ED = False):
         if not ED:
