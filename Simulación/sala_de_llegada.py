@@ -151,7 +151,9 @@ class Urgencias(SalaDeLLegada):
 
             if unidad_destino.camas_disponibles < self.simuacion.estrategia.parametros_secundarios["NUMERO INICIO POLITICA ED"][self.hospital]:
                 
-                puntaje, hospital = self.simuacion.generar_puntaje_paciente(paciente, hospital_actual_ED=self.hospital)
+                puntajes, hospitales = self.simuacion.generar_puntaje_paciente(paciente, hospital_actual_ED=self.hospital)
+                puntaje = puntajes[0]
+                hospital = hospitales[0]
                 if self.camas_disponibles > 0 and hospital.nombre == self.hospital:
                                                 ## En vez de 0, usamo el buffer propio de este hospital para considerar los costos de traslado
                     self.agregar_paciente(paciente)

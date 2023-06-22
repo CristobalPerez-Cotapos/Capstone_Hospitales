@@ -150,7 +150,7 @@ class Simulacion:
                         if unidad.codigo != 'ED':
                             self.diccionario_resultados_jornada["Pacientes esperando"][hospital.nombre][self.jornadas_transcurridas][unidad.codigo] = unidad.total_de_pacientes_atendidos
                         
-                        if unidad.codigo == 'GA' and 200 <=dia <= 230:
+                        if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
                             print(f" Hospital : {unidad.hospital} , Unidad: {unidad.codigo}, Jornada: {self.jornadas_transcurridas}, Camas disponibles : {unidad.camas_disponibles}")
 
             self.dias_transcurridos += 1
@@ -164,6 +164,7 @@ class Simulacion:
                 if unidad.codigo != 'ED':
                     diccionario_tiempos[f"{hospital.nombre} - {unidad.codigo}"] = unidad.diccionario_tiempos_espera
         ar('None').guardar_resultados(diccionario_tiempos, "tiempos.json")
+        ar('None').guardar_resultados(self.diccionario_resultados, "resultados_paracachar.json")
                     
         
 
@@ -227,28 +228,39 @@ class Simulacion:
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
         for paciente in pacientes_listos:
             
-            puntaje, hospital = self.generar_puntaje_paciente(paciente)
+            puntajes, hospitales = self.generar_puntaje_paciente(paciente)
             ruta = paciente.ruta_paciente[1]
-            for unidad in hospital.lista_de_unidades:
-                if unidad.codigo == ruta:
-                    unidad_paciente = unidad
-            if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
-                self.lista_de_espera.retirar_paciente(paciente)
-                hospital.admision.agregar_paciente(paciente)
-                hospital.desplazamiento_entre_unidades()
-            elif (hospital.admision.camas_disponibles > 0 
-                  and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
-                self.lista_de_espera.retirar_paciente(paciente)
-                hospital.admision.agregar_paciente(paciente)
-                hospital.desplazamiento_entre_unidades()
-            elif puntaje < 0:
-                self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
-
-                self.derivar_paciente(paciente)
-            else:
-                if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
+            condicion = False
+            indice = 0
+            while not condicion:
+                hospital = hospitales[indice]
+                for unidad in hospital.lista_de_unidades:
+                    if unidad.codigo == ruta:
+                        unidad_paciente = unidad
+                puntaje = puntajes[indice]
+                if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
+                    self.lista_de_espera.retirar_paciente(paciente)
+                    hospital.admision.agregar_paciente(paciente)
+                    hospital.desplazamiento_entre_unidades()
+                    condicion = True
+                elif (hospital.admision.camas_disponibles > 0 
+                    and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
+                    self.lista_de_espera.retirar_paciente(paciente)
+                    hospital.admision.agregar_paciente(paciente)
+                    hospital.desplazamiento_entre_unidades()
+                    condicion = True
+                elif puntaje < 0:
                     self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
+
                     self.derivar_paciente(paciente)
+                    condicion = True
+                else:
+                    if indice == 2:
+                        if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
+                            self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
+                            self.derivar_paciente(paciente)
+                        condicion = True
+                indice += 1
 
     def derivar_paciente(self, paciente, ED = False):
         if not ED:
@@ -265,18 +277,21 @@ class Simulacion:
             self.diccionario_resultados_jornada["Costos derivaciones"][paciente.hospital_llegada][self.jornadas_transcurridas] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.diccionario_resultados_jornada["Costos jornada"][self.jornadas_transcurridas] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
     def generar_puntaje_paciente(self, paciente, hospital_actual_ED=""):
-        max_puntaje = -1000000000000000000
+        
         informacion = self.recopilar_informacion()
+        lista_puntajes = []
         for hospital in self.hospitales:
             datos = informacion[hospital.nombre]
             datos_WL = informacion["WL"]
             puntaje = self.estrategia.generar_punteje_paciente(paciente, datos, datos_WL, hospital.nombre)
             if hospital.nombre == hospital_actual_ED:
                 puntaje += self.estrategia.parametros_secundarios["BUFFER"][hospital.nombre]
-            if puntaje > max_puntaje:
-                max_puntaje = puntaje
-                hospital_asignado = hospital
-        return max_puntaje, hospital_asignado
+            lista_puntajes.append([hospital, puntaje])
+        
+        lista_puntajes.sort(key=lambda x: x[1], reverse=True)
+        orden_hospitales = [i[0] for i in lista_puntajes]
+        orden_puntajes = [i[1] for i in lista_puntajes]
+        return orden_puntajes, orden_hospitales
 
     def imprimir_estado(self):
         print(f"Largo de la lista de espera {len(self.lista_de_espera.pacientes_atendidos)}")
