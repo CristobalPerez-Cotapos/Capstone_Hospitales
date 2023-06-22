@@ -161,8 +161,8 @@ class Simulacion:
                         if unidad.codigo != 'ED':
                             self.diccionario_resultados_jornada["Pacientes esperando"][hospital.nombre][self.jornadas_transcurridas][unidad.codigo] = unidad.total_de_pacientes_atendidos
                         
-                        # if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
-                        #     print(f" Hospital : {unidad.hospital} , Unidad: {unidad.codigo}, Jornada: {self.jornadas_transcurridas}, Camas disponibles : {unidad.camas_disponibles}")
+                        if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
+                            print(f" Hospital : {unidad.hospital} , Unidad: {unidad.codigo}, Jornada: {self.jornadas_transcurridas}, Camas disponibles : {unidad.camas_disponibles}")
 
             self.dias_transcurridos += 1
         
@@ -251,8 +251,10 @@ class Simulacion:
                 pacientes[8].append(paciente)
         lista_pacientes = pacientes[8] + pacientes[7] + pacientes[6] + pacientes[5]
         return lista_pacientes
+    
     def trasladar_pacientes_lista_de_espera(self):
         pacientes_listos = self.lista_de_espera.pacientes_listos_para_trasladar("GA")
+        #pacientes_listos = self.ordenar_pacientes_listos(pacientes_listos)
         if self.estrategia.id == 0:
             for paciente in pacientes_listos:
                 ruta = paciente.ruta_paciente[1]

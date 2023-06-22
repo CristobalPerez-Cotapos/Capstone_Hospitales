@@ -131,12 +131,12 @@ class Simulador:
                 self.resultados_estrategias = {}
                 mejores_resultados = []
                 mejores_estrategias = []
-                i = 0
-                while len(mejores_resultados) < 10 and i < len(self.simulaciones):
+                indice = 0
+                while len(mejores_resultados) < 10 and indice < len(self.simulaciones):
                     if self.simulaciones[i].promedio_resultados() not in mejores_resultados:
-                        mejores_resultados.append(self.simulaciones[i].promedio_resultados())
-                        mejores_estrategias.append(self.simulaciones[i])
-                    i += 1
+                        mejores_resultados.append(self.simulaciones[indice].promedio_resultados())
+                        mejores_estrategias.append(self.simulaciones[indice])
+                    indice += 1
 
                 for j in range(len(mejores_estrategias)):
                     diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_ESTRATEGIA)} for kpi in lista_KPIs}
