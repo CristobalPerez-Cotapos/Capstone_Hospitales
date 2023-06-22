@@ -67,8 +67,8 @@ class SalaDeAtencion(ABC):
                 try:
                     costos_muertos += ph.VALOR_RIESGO[i.ruta_paciente[0]][i.grupo_diagnostico][i.ruta_paciente[1]][int(i.tiempo_esperado_muerto) + 1] * ps.COSTO_VIDA
                 except KeyError:
-                    print("Pereció la redonda")
-                    print(i.ruta_paciente[0], i.grupo_diagnostico, i.tiempo_esperado_muerto, i.ruta_paciente[1])
+                    # print("Pereció la redonda")
+                    # print(i.ruta_paciente[0], i.grupo_diagnostico, i.tiempo_esperado_muerto, i.ruta_paciente[1])
                     costos_muertos += ps.COSTO_VIDA
 
             #print(f"El paciente {i.id} ha incurrido en un gasto en la unidad {self.codigo} de {self.costo[i.grupo_diagnostico]}")

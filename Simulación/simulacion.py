@@ -161,8 +161,8 @@ class Simulacion:
                         if unidad.codigo != 'ED':
                             self.diccionario_resultados_jornada["Pacientes esperando"][hospital.nombre][self.jornadas_transcurridas][unidad.codigo] = unidad.total_de_pacientes_atendidos
                         
-                        if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
-                            print(f" Hospital : {unidad.hospital} , Unidad: {unidad.codigo}, Jornada: {self.jornadas_transcurridas}, Camas disponibles : {unidad.camas_disponibles}")
+                        # if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
+                        #     print(f" Hospital : {unidad.hospital} , Unidad: {unidad.codigo}, Jornada: {self.jornadas_transcurridas}, Camas disponibles : {unidad.camas_disponibles}")
 
             self.dias_transcurridos += 1
         
