@@ -57,10 +57,10 @@ TIEMPO_ESPERADO_MAXIMO = {1: 0,
                           2: 0,
                           3: 0,
                           4: 0,
-                          5: 54,
-                          6: 52,
-                          7: 52,
-                          8: 53,}
+                          5: 53,
+                          6: 53,
+                          7: 54,
+                          8: 54,}
 
 PARAMETROS_ESTRATEGIA_SECUNDARIOS = {
     "BUFFER": {

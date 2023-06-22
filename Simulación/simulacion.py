@@ -328,6 +328,7 @@ class Simulacion:
             self.costo_total_derivacion += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.costos_jornada[self.jornadas_transcurridas] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
             self.diccionario_resultados_jornada["Costos derivaciones"][paciente.hospital_llegada][self.jornadas_transcurridas] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
+            self.diccionario_resultados_jornada["Derivaciones"][paciente.hospital_llegada][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
             self.diccionario_resultados_jornada["Costos jornada"][self.jornadas_transcurridas] += ph.COSTOS_DERIVACION[destino][paciente.grupo_diagnostico]
     def generar_puntaje_paciente(self, paciente, hospital_actual_ED=""):
         
@@ -403,3 +404,4 @@ class Simulacion:
             self.costos_jornada[self.jornadas_transcurridas] += ph.COSTOS_TRASLADO[paciente.ruta_paciente[0]][paciente.grupo_diagnostico]
         else:
             self.derivar_paciente(paciente, ED=True)
+            self.diccionario_resultados_jornada["Derivaciones"][paciente.hospital_llegada][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1

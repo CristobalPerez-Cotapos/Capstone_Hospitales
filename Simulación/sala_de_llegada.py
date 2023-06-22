@@ -152,16 +152,32 @@ class Urgencias(SalaDeLLegada):
             if unidad_destino.camas_disponibles < self.simuacion.estrategia.parametros_secundarios["NUMERO INICIO POLITICA ED"][self.hospital]:
                 
                 puntajes, hospitales = self.simuacion.generar_puntaje_paciente(paciente, hospital_actual_ED=self.hospital)
-                puntaje = puntajes[0]
-                hospital = hospitales[0]
-                if self.camas_disponibles > 0 and hospital.nombre == self.hospital:
-                                                ## En vez de 0, usamo el buffer propio de este hospital para considerar los costos de traslado
-                    self.agregar_paciente(paciente)
-                elif puntaje > 0:
-                    self.simuacion.trasladar_paciente(paciente, hospital)
-                else:
-                    print("Entre aqui ?")
-                    self.simuacion.derivar_paciente(paciente, ED=True)
+                condicion = False
+                indice = 0
+                while not condicion:
+                    puntaje = puntajes[indice]
+                    hospital = hospitales[indice]
+                    if hospital.nombre == self.hospital:
+                        pass
+                    else:
+                        for unidad in hospital.lista_de_unidades:
+                            if unidad.codigo == paciente.ruta_paciente[0]:
+                                unidad_destino = unidad
+                        if unidad_destino.camas_disponibles > 0:
+                            self.simuacion.trasladar_paciente(paciente, hospital)
+                            condicion = True
+                    indice += 1
+                    if indice == 3:
+                        condicion = True
+                        self.simuacion.derivar_paciente(paciente, ED=True)
+
+                    # if self.camas_disponibles > 0 and hospital.nombre == self.hospital:
+                    #                                 ## En vez de 0, usamo el buffer propio de este hospital para considerar los costos de traslado
+                    #     self.agregar_paciente(paciente)
+                    # elif puntaje > 0:
+                    #     self.simuacion.trasladar_paciente(paciente, hospital)
+                    # else:
+                    #     self.simuacion.derivar_paciente(paciente, ED=True)
             else:
                 self.agregar_paciente(paciente)
 

@@ -154,8 +154,8 @@ class Simulador:
                 for simulacion_e in mejores_estrategias:
                     diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
                 
-                ar("None").guardar_resultados(self.resultados_estrategias, "anda.json")   # guarda los resultados de las mejores estrategias
-                ar("None").guardar_resultados(diccionario_estrategias, "anda2.json")   # guarda las mejores estrategias en un diccionario
+                ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
+                ar("None").guardar_resultados(diccionario_estrategias, "estrategias.json")   # guarda las mejores estrategias en un diccionario
                 print(f"Funcion objetivo: {mejor_valor}")
                 
         lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación"]
@@ -185,8 +185,8 @@ class Simulador:
         for simulacion_e in mejores_estrategias:
             diccionario_estrategias[f"Estrategia {simulacion_e.estrategia.id}"] = {"Parametros principales" : simulacion_e.estrategia.parametros_estrategia, "Parametros secundarios" : simulacion_e.estrategia.parametros_secundarios} 
         
-        ar("None").guardar_resultados(self.resultados_estrategias, "anda.json")   # guarda los resultados de las mejores estrategias
-        ar("None").guardar_resultados(diccionario_estrategias, "anda2.json")   # guarda las mejores estrategias en un diccionario
+        ar("None").guardar_resultados(self.resultados_estrategias, "resultados_estrategias.json")   # guarda los resultados de las mejores estrategias
+        ar("None").guardar_resultados(diccionario_estrategias, "estrategias.json")   # guarda las mejores estrategias en un diccionario
         print(f"Funcion objetivo: {mejor_valor}")
         
 
