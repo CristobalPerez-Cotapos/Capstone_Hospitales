@@ -222,18 +222,19 @@ class Simulador:
                 self.simulacion_base = simulacion
             self.simulaciones.append(simulacion)
         
-        lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación", "Tiempo de espera pacientes"]
+        lista_KPIs = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación", "Tiempo de espera pacientes", "Tiempo de espera WL"]
         self.resultados_estrategias = {}
         mejores_resultados = []
         mejores_estrategias = []
         diccionario_estrategias_jornadas = {}
         for j in range(len(self.simulaciones)):
             diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA)} for kpi in lista_KPIs}
-            diccionario_jornadas = {f"Simulación {n+1}" : {} for n in range(ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA)}
+            diccionario_jornadas = {f"Simulación {n+1}" : {} for n in range(2)}
             for i in range (1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1):
                 for kpi in lista_KPIs:
                     diccionario_auxiliar[kpi][f"Simulación {i}"] = self.simulaciones[j].diccionario_resultados[f"Simulación {i}"][kpi]
-                diccionario_jornadas[f"Simulación {i}"] = self.simulaciones[j].diccionario_jornadas[f"Simulación {i}"]
+                if i <= 2:
+                    diccionario_jornadas[f"Simulación {i}"] = self.simulaciones[j].diccionario_jornadas[f"Simulación {i}"]
 
             self.resultados_estrategias[f"Estrategia {self.simulaciones[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
             diccionario_estrategias_jornadas[f"Estrategia {self.simulaciones[j].estrategia.id}"] = diccionario_jornadas

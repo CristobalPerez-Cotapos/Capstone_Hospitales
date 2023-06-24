@@ -4,6 +4,7 @@ from hospital import Hospital
 from sala_de_llegada import ListaDeEspera
 from abrir_json import Archivos as ar
 from estrategia import Estrategia
+import numpy as np
 import random
 random.seed(ps.SEED)
 
@@ -22,7 +23,7 @@ class Simulacion:
         self.costos_muertos_WL = 0
         self.resultados = []   
         self.costos_jornada = {i : 0 for i in range(1, self.jornadas_de_simulacion + 1)}
-        self.lista_kpis = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación", "Tiempo de espera pacientes"]
+        self.lista_kpis = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación", "Tiempo de espera pacientes", "Tiempo de espera WL"]
         self.diccionario_resultados_jornada = {j : 0 for j in self.lista_kpis}
         self.agregar_hospitales()
         self.funciones_objetivos = {}
@@ -32,7 +33,7 @@ class Simulacion:
         self.diccionario_resultados = {f"Simulación {i}" : {j : 0 for j in self.lista_kpis} for i in range(1, ps.SIMULACIONES_POR_ESTRATEGIA + 1)}
         self.reacomodar_diccionarios_simulacion(ps.SIMULACIONES_POR_ESTRATEGIA)
         self.diccionario_resultados_cambio = {f"Simulación {i}" : {j : 0 for j in self.lista_kpis} for i in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
-        self.diccionario_jornadas = {f"Simulación {i}" : {} for i in range(1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1)}
+        self.diccionario_jornadas = {f"Simulación {i}" : {} for i in range(1, 3)}
         
 
     def reacomodar_diccionarios_jornada(self):
@@ -42,6 +43,7 @@ class Simulacion:
         for kpi in listakpi1:
             self.diccionario_resultados_jornada[kpi] = {i.nombre : {j : 0 for j in range(1, self.jornadas_de_simulacion + 1)} for i in self.hospitales}
         self.diccionario_resultados_jornada["Costos espera WL"] = {i : 0 for i in range(1, self.jornadas_de_simulacion + 1)}
+        self.diccionario_resultados_jornada["Tiempo de espera WL"] = {i : [] for i in range(1, self.jornadas_de_simulacion + 1)}
         self.diccionario_resultados_jornada["Costos jornada"] = {i : 0 for i in range(1, self.jornadas_de_simulacion + 1)}
         self.diccionario_resultados_jornada["Costos derivaciones"] = {i : {j : 0 for j in range(1, self.jornadas_de_simulacion + 1)} for i in lista1}
         self.diccionario_resultados_jornada["Derivaciones"] = {i : {j : {k : 0 for k in range(1,9)} for j in range(1, self.jornadas_de_simulacion + 1)} for i in lista1}
@@ -55,6 +57,7 @@ class Simulacion:
         for n_simulacion in range(1, n_simulaciones + 1):
             for kpi in listakpi1:
                 self.diccionario_resultados[f"Simulación {n_simulacion}"][kpi] = {i.nombre : 0 for i in self.hospitales}
+            self.diccionario_resultados[f"Simulación {n_simulacion}"]["Tiempo de espera WL"] = 0
             self.diccionario_resultados[f"Simulación {n_simulacion}"]["Costos derivaciones"] = {i : 0 for i in lista1}
             self.diccionario_resultados[f"Simulación {n_simulacion}"]["Derivaciones"] = {i : 0 for i in lista1}
             self.diccionario_resultados[f"Simulación {n_simulacion}"]["Pacientes esperando"] = {i.nombre : 0 for i in self.hospitales}
@@ -75,6 +78,14 @@ class Simulacion:
                 if jornada in ps.ID_JORNADAS_MUESTRAS:
                     suma += self.diccionario_resultados_jornada[kpi][jornada]
             self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"][kpi] = suma / ps.MUESTRAS_POR_SIMULACION
+        elif kpi == "Tiempo de espera WL":
+            suma = 0
+            cuenta = 0
+            for jornada in self.diccionario_resultados_jornada[kpi].keys():
+                if jornada in ps.ID_JORNADAS_MUESTRAS:
+                    suma += np.mean(self.diccionario_resultados_jornada[kpi][jornada])
+                    cuenta += 1
+            self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"][kpi] = suma / cuenta
         elif kpi == "Costos derivaciones":
             for hospital in self.diccionario_resultados_jornada[kpi].keys():
                 suma = 0
@@ -92,8 +103,8 @@ class Simulacion:
                             suma[grupo_diagnostico] += self.diccionario_resultados_jornada[kpi][hospital][jornada][grupo_diagnostico]
                 self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"][kpi][hospital] = {i : suma[i] / ps.MUESTRAS_POR_SIMULACION for i in range(1, 9)}
         elif kpi == "Espera WL":
+            suma = 0
             for jornada in self.diccionario_resultados_jornada[kpi].keys():
-                suma = 0
                 if jornada in ps.ID_JORNADAS_MUESTRAS:
                     suma += self.diccionario_resultados_jornada[kpi][jornada]
                 self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"][kpi] = suma / ps.MUESTRAS_POR_SIMULACION
@@ -109,11 +120,19 @@ class Simulacion:
         elif kpi == "Tiempo de espera pacientes":
             for hospital in self.diccionario_resultados_jornada[kpi].keys():
                 suma = {i : {j : 0 for j in ["ICU", "SDU_WARD", "OR", "GA"]} for i in range(1, 9)}
+                contador_jornadas = {i : {j : 0 for j in ["ICU", "SDU_WARD", "OR", "GA"]} for i in range(1, 9)}
                 for jornada in self.diccionario_resultados_jornada[kpi][hospital].keys():
                     if jornada in ps.ID_JORNADAS_MUESTRAS:
                         for grupo_diagnostico in self.diccionario_resultados_jornada[kpi][hospital][jornada].keys():
                             for unidad in self.diccionario_resultados_jornada[kpi][hospital][jornada][grupo_diagnostico].keys():
-                                suma[grupo_diagnostico][unidad] += self.diccionario_resultados_jornada[kpi][hospital][jornada][grupo_diagnostico][unidad] / ps.MUESTRAS_POR_SIMULACION
+
+                                suma[grupo_diagnostico][unidad] += self.diccionario_resultados_jornada[kpi][hospital][jornada][grupo_diagnostico][unidad]
+                                if self.diccionario_resultados_jornada[kpi][hospital][jornada][grupo_diagnostico][unidad] != 0:
+                                    contador_jornadas[grupo_diagnostico][unidad] += 1
+                for grupo_diagnostico in suma.keys():
+                    for unidad in suma[grupo_diagnostico].keys():
+                        if contador_jornadas[grupo_diagnostico][unidad] != 0:
+                            suma[grupo_diagnostico][unidad] = suma[grupo_diagnostico][unidad] / contador_jornadas[grupo_diagnostico][unidad]
                 self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"][kpi][hospital] = suma
         elif kpi == "Tasas ocupación":
             for hospital in self.diccionario_resultados_jornada[kpi].keys():
@@ -169,6 +188,8 @@ class Simulacion:
                         self.diccionario_resultados_jornada["Tasas ocupación"][hospital.nombre][self.jornadas_transcurridas] = tasas_camas
 
                 self.diccionario_resultados_jornada["Espera WL"][self.jornadas_transcurridas] = len(self.lista_de_espera.pacientes_atendidos)
+                
+                
                 for hospital in self.hospitales:
                     for unidad in hospital.lista_de_unidades:
                         if unidad.codigo != 'ED':
@@ -176,7 +197,9 @@ class Simulacion:
                             for paciente in unidad.pacientes_atendidos:
                                 self.diccionario_resultados_jornada["Tiempo de espera pacientes"][hospital.nombre][self.jornadas_transcurridas][paciente.grupo_diagnostico][unidad.codigo] += paciente.tiempo_a_esperar / unidad.cantidad_de_pacientes_por_grupo_atendidos[paciente.grupo_diagnostico]
                 
-                
+                if self.estrategia.id == 0 and 400 <= self.jornadas_transcurridas <= 1000:
+                    if self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas - 1] == []:
+                        print(self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas - 1] )
     
                         
                         # if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
@@ -186,7 +209,8 @@ class Simulacion:
         
         for kpi in self.lista_kpis:
             self.calcular_promedios_kpis(kpi)
-        self.diccionario_jornadas[f"Simulación {self.numero_ejecucion}"] = self.diccionario_resultados_jornada
+        if self.numero_ejecucion <= 2:
+            self.diccionario_jornadas[f"Simulación {self.numero_ejecucion}"] = self.diccionario_resultados_jornada
         self.resultados.append(self.calcular_funcion_objetivo())
         diccionario_tiempos = {}
         for hospital in self.hospitales:
@@ -286,11 +310,13 @@ class Simulacion:
                         hospitales_camas.append([hospital, unidad_paciente.camas_disponibles])
                     hospitales_camas.sort(key=lambda x: x[1], reverse=True)
                     if hospitales_camas[0][1] > 0:
+                        self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
                         self.lista_de_espera.retirar_paciente(paciente)
                         hospitales_camas[0][0].admision.agregar_paciente(paciente)
                         hospitales_camas[0][0].desplazamiento_entre_unidades()
                     else:
                         if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
+                            self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
                             self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
                             self.derivar_paciente(paciente)
 
@@ -311,13 +337,18 @@ class Simulacion:
                             unidad_paciente = unidad
                     puntaje = puntajes[indice]
                     if hospital.admision.camas_disponibles > 0 and puntaje >= 0:
+                        if self.jornadas_transcurridas != 0:
+                            self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
                         self.lista_de_espera.retirar_paciente(paciente)
                         hospital.admision.agregar_paciente(paciente)
                         hospital.desplazamiento_entre_unidades()
                         condicion = True
                     elif (hospital.admision.camas_disponibles > 0 
                         and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
+                        if self.jornadas_transcurridas != 0:
+                            self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
                         self.lista_de_espera.retirar_paciente(paciente)
+                        
                         hospital.admision.agregar_paciente(paciente)
                         hospital.desplazamiento_entre_unidades()
                         condicion = True
@@ -328,6 +359,8 @@ class Simulacion:
                     if indice == 2:
                         if paciente.tiempo_esperado_muerto >= 3:
                             self.diccionario_resultados_jornada["Derivaciones"]["WL"][self.jornadas_transcurridas][paciente.grupo_diagnostico] += 1
+                            if self.jornadas_transcurridas != 0:
+                                self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
                             self.derivar_paciente(paciente)
                         condicion = True
                     indice += 1
@@ -382,7 +415,7 @@ class Simulacion:
         for hospital in self.hospitales:
             costo_total += hospital.costos_muertos
         print(f"Costo hospital: {costo_total}, costo derivacion: {self.costo_total_derivacion}, costos muertos WL: {self.costos_muertos_WL}" +
-              f" estrategia: {self.estrategia.id}")
+            f" estrategia: {self.estrategia.id}")
         
         promedio = self.diccionario_resultados[f"Simulación {self.numero_ejecucion}"]["Costos jornada"]
         
@@ -404,7 +437,7 @@ class Simulacion:
         self.costo_total_derivacion = 0
         self.costos_muertos_WL = 0
         self.costos_jornada = {i : 0 for i in range(1, self.jornadas_de_simulacion + 1)}
-        self.lista_kpis = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación", "Tiempo de espera pacientes"]
+        self.lista_kpis = ["Costos jornada", "Costos muertos", "Costos derivaciones", "Costos espera WL", "Costos traslados" ,"Derivaciones", "Espera WL", "Pacientes esperando", "Tasas ocupación", "Tiempo de espera pacientes", "Tiempo de espera WL"]
         self.diccionario_resultados_jornada = {j : 0 for j in self.lista_kpis}
         self.reacomodar_diccionarios_jornada()
         

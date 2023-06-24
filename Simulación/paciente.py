@@ -15,7 +15,7 @@ class Paciente():
         self.id = Paciente.id
         Paciente.id += 1
         self.grupo_diagnostico = grupo_diagnostico
-        self.tiempo_esperado = 0
+        self.tiempo_esperado = 0   
         self.ruta_paciente = []
         self.definir_ruta_paciente()
         self.tiempo_atencion_unidad_actual = 0
