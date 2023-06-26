@@ -152,7 +152,9 @@ class Simulacion:
 
     def simular_miltiples_veces(self):
         for i in range(ps.SIMULACIONES_POR_ESTRATEGIA):
+            
             self.simular()
+
             if i == ps.SIMULACIONES_POR_ESTRATEGIA - 1:
                 self.resultados_simulaciones.append(self)
             self.resetear_simulacion()
@@ -196,11 +198,7 @@ class Simulacion:
                             self.diccionario_resultados_jornada["Pacientes esperando"][hospital.nombre][self.jornadas_transcurridas][unidad.codigo] = unidad.total_de_pacientes_atendidos
                             for paciente in unidad.pacientes_atendidos:
                                 self.diccionario_resultados_jornada["Tiempo de espera pacientes"][hospital.nombre][self.jornadas_transcurridas][paciente.grupo_diagnostico][unidad.codigo] += paciente.tiempo_a_esperar / unidad.cantidad_de_pacientes_por_grupo_atendidos[paciente.grupo_diagnostico]
-                
-                if self.estrategia.id == 0 and 400 <= self.jornadas_transcurridas <= 1000:
-                    if self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas - 1] == []:
-                        print(self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas - 1] )
-    
+        
                         
                         # if unidad.codigo == 'SDU_WARD' and 200 <=dia <= 230:
                         #     print(f" Hospital : {unidad.hospital} , Unidad: {unidad.codigo}, Jornada: {self.jornadas_transcurridas}, Camas disponibles : {unidad.camas_disponibles}")
@@ -218,7 +216,7 @@ class Simulacion:
                 if unidad.codigo != 'ED':
                     diccionario_tiempos[f"{hospital.nombre} - {unidad.codigo}"] = unidad.diccionario_tiempos_espera
         
-                    
+        # ar('None').guardar_resultados(self.diccionario_resultados, "resultados_paracachar.json")
         
 
     def simular_cambio_estrategia(self):
@@ -310,10 +308,18 @@ class Simulacion:
                         hospitales_camas.append([hospital, unidad_paciente.camas_disponibles])
                     hospitales_camas.sort(key=lambda x: x[1], reverse=True)
                     if hospitales_camas[0][1] > 0:
-                        self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
-                        self.lista_de_espera.retirar_paciente(paciente)
-                        hospitales_camas[0][0].admision.agregar_paciente(paciente)
-                        hospitales_camas[0][0].desplazamiento_entre_unidades()
+                        if hospitales_camas[0][0].admision.camas_disponibles > 0:
+                            self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
+                            self.lista_de_espera.retirar_paciente(paciente)
+                            hospitales_camas[0][0].admision.agregar_paciente(paciente)
+                            hospitales_camas[0][0].desplazamiento_entre_unidades()
+                        else:
+                            self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
+                            self.lista_de_espera.retirar_paciente(paciente)
+                            paciente.ruta_paciente.pop(0)
+                            for unidad in hospitales_camas[0][0].lista_de_unidades:
+                                if unidad.codigo == ruta:
+                                    unidad.agregar_paciente(paciente)
                     else:
                         if paciente.tiempo_esperado_muerto >= ps.TIEMPO_ESPERADO_MAXIMO[paciente.grupo_diagnostico]:
                             self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
@@ -343,15 +349,27 @@ class Simulacion:
                         hospital.admision.agregar_paciente(paciente)
                         hospital.desplazamiento_entre_unidades()
                         condicion = True
-                    elif (hospital.admision.camas_disponibles > 0 
-                        and unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
+                    elif puntaje >= 0 and unidad_paciente.camas_disponibles > 0:
                         if self.jornadas_transcurridas != 0:
                             self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
                         self.lista_de_espera.retirar_paciente(paciente)
-                        
-                        hospital.admision.agregar_paciente(paciente)
-                        hospital.desplazamiento_entre_unidades()
+                        paciente.ruta_paciente.pop(0)
+                        unidad_paciente.agregar_paciente(paciente)
                         condicion = True
+                    elif (unidad_paciente.camas_disponibles > self.estrategia.parametros_secundarios["NUMERO INICIO POLITICA"][hospital.nombre][unidad_paciente.codigo]):
+                        if self.jornadas_transcurridas != 0:
+                            self.diccionario_resultados_jornada["Tiempo de espera WL"][self.jornadas_transcurridas].append(paciente.tiempo_esperado_muerto)
+                        if hospital.admision.camas_disponibles > 0:
+                            self.lista_de_espera.retirar_paciente(paciente)
+                            
+                            hospital.admision.agregar_paciente(paciente)
+                            hospital.desplazamiento_entre_unidades()
+                            condicion = True
+                        else:
+                            self.lista_de_espera.retirar_paciente(paciente)
+                            paciente.ruta_paciente.pop(0)
+                            unidad_paciente.agregar_paciente(paciente)
+                            condicion = True
                     elif puntaje < 0:
                         pass
 

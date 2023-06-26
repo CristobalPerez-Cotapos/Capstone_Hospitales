@@ -9,17 +9,17 @@ cpu_info = psutil.cpu_count()
 
 NUMERO_CORAZONES = math.trunc(cpu_info * 0.5)
 DIAS_DE_SIMULACION = 500
-SIMULACIONES_POR_ESTRATEGIA = 100
+SIMULACIONES_POR_ESTRATEGIA = 6
 NUMERO_SIMULACIONES_PARALELAS = 8
 # NUMERO_UNIDADES_FUTURAS = 1 #####
-NUMERO_ITERACIONES = 200
+NUMERO_ITERACIONES = 150
 
-SIMULACIONES_POR_MEJOR_ESTRATEGIA = 100
+SIMULACIONES_POR_MEJOR_ESTRATEGIA = 6
 
 ######### CAMBIAR ESTOOOOOOO
 #########
 COSTO_VIDA = 6266 # TRINI=0, DANI=500, JAVI=3133, PANCHO=62660
-SEED = 610579 # TRINI=11117, DANI=22227, JAVI=333337, PANCHO=44447
+SEED = 619 # TRINI=11117, DANI=22227, JAVI=333337, PANCHO=44447
 #########
 #########
 
@@ -58,9 +58,9 @@ TIEMPO_ESPERADO_MAXIMO = {1: 0,
                           3: 0,
                           4: 0,
                           5: 53,
-                          6: 53,
-                          7: 54,
-                          8: 54,}
+                          6: 52,
+                          7: 55,
+                          8: 55,}
 
 PARAMETROS_ESTRATEGIA_SECUNDARIOS = {
     "BUFFER": {
@@ -71,18 +71,18 @@ PARAMETROS_ESTRATEGIA_SECUNDARIOS = {
 
     "NUMERO INICIO POLITICA": {
         "H_1": {
-            "SDU_WARD": 6,
-            "ICU": 4,
-            "OR": 3,
+            "SDU_WARD": 9,
+            "ICU": 6,
+            "OR": 4,
         },
         "H_2": {
-            "SDU_WARD": 6,
-            "ICU": 3,
-            "OR": 2,
+            "SDU_WARD": 8,
+            "ICU": 5,
+            "OR": 3,
         },
         "H_3": {
             "SDU_WARD": 6,
-            "ICU": 3,
+            "ICU": 4,
             "OR": 2,
         }
     },

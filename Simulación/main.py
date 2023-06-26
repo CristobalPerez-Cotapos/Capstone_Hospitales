@@ -18,7 +18,7 @@ random.seed(ps.SEED)
 if __name__ == "__main__":
     estrategia = Estrategia(ph.PARAMETROS_ESTRATEGIA_PRINCIPALES, ps.PARAMETROS_ESTRATEGIA_SECUNDARIOS)
     simulacion = Simulador(estrategia)
-    simulacion.simular_mejores_estrategias()
+    simulacion.simular()
 # print(simulacion.capacidad_cama_por_simulacion)   
 # print(simulacion.costos_derivacion_simulacion)
 # print(simulacion.costos_espera_WL_simulacion)
