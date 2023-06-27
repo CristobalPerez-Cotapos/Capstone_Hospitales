@@ -35,6 +35,7 @@ class ListaDeEspera(SalaDeLLegada):
         super().__init__()
         self.pacientes_en_atencion = {i: [] for i in range(1, 9)}
         self.pacientes_atendidos = []
+        self.pacientes_ordenados = []
         self.tiempos_espera = tiempo_espera
         self.total_de_pacientes_en_espera = 0
         self.total_de_pacientes_para_ingresar = 0
@@ -59,6 +60,25 @@ class ListaDeEspera(SalaDeLLegada):
 
     def pacientes_listos_para_trasladar(self, unidad):
         return self.pacientes_atendidos
+    
+    # def ordenar_pacientes(self):
+    #     pacientes_5 = []
+    #     pacientes_6 = []
+    #     pacientes_7 = []
+    #     pacientes_8 = []
+    #     for paciente in self.pacientes_atendidos:
+    #         if paciente.grupo_diagnostico == 5:
+    #             pacientes_5.append(paciente)
+    #         elif paciente.grupo_diagnostico == 6:
+    #             pacientes_6.append(paciente)
+    #         elif paciente.grupo_diagnostico == 7:
+    #             pacientes_7.append(paciente)
+    #         elif paciente.grupo_diagnostico == 8:
+    #             pacientes_8.append(paciente)
+    #     self.pacientes_atendidos = pacientes_7 + pacientes_8 + pacientes_5 + pacientes_6
+
+        
+
     
     def retirar_paciente(self, paciente):
         self.pacientes_atendidos.remove(paciente)
@@ -111,6 +131,7 @@ class Urgencias(SalaDeLLegada):
         self.cantidad_de_pacientes_por_grupo_en_atencion = {i: 0 for i in range(1, 9)}
         self.cantidad_de_pacientes_por_grupo_atendidos = {i: 0 for i in range(1, 9)}
         self.simuacion = simulacion
+        self.condicion = False
 
     @property
     def camas_disponibles(self):
@@ -137,7 +158,7 @@ class Urgencias(SalaDeLLegada):
                 nuevos_pacientes.append(paciente)
             
         # Ordenar pacientes por costo de derivación
-        nuevos_pacientes = sorted(nuevos_pacientes, key=lambda x: ph.COSTOS_DERIVACION[paciente.ruta_paciente[0]][grupo_diagnostico], reverse=True)
+        nuevos_pacientes = sorted(nuevos_pacientes, key=lambda x: ph.COSTOS_DERIVACION[paciente.ruta_paciente[0]][grupo_diagnostico])
         #print(f"Se han generado {len(nuevos_pacientes)} nuevos pacientes")
 
         for paciente in nuevos_pacientes:

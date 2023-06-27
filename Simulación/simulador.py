@@ -230,7 +230,9 @@ class Simulador:
         mejores_resultados = []
         mejores_estrategias = []
         diccionario_estrategias_jornadas = {}
+        diccionario_promedio_jornadas = {}
         for j in range(len(self.simulaciones)):
+            #print(self.simulaciones[j].diccionario_promedio_jornadas)
             diccionario_auxiliar = {kpi : {f"Simulación {n+1}" : 0 for n in range(ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA)} for kpi in lista_KPIs}
             diccionario_jornadas = {f"Simulación {n+1}" : {} for n in range(2)}
             for i in range (1, ps.SIMULACIONES_POR_MEJOR_ESTRATEGIA + 1):
@@ -241,8 +243,10 @@ class Simulador:
 
             self.resultados_estrategias[f"Estrategia {self.simulaciones[j].estrategia.id}"] = {kpi : diccionario_auxiliar[kpi] for kpi in lista_KPIs}
             diccionario_estrategias_jornadas[f"Estrategia {self.simulaciones[j].estrategia.id}"] = diccionario_jornadas
-        ar("None").guardar_resultados(self.resultados_estrategias, "resultados_mejores_estrategias.json")   # guarda los resultados de las mejores estrategias
-        ar("None").guardar_resultados(diccionario_estrategias_jornadas, "jornadas_mejores_estrategias.json")   # guarda las mejores estrategias en un diccionario
+            diccionario_promedio_jornadas[f"Estrategia {self.simulaciones[j].estrategia.id}"] = self.simulaciones[j].diccionario_promedio_jornadas
+        ar("None").guardar_resultados(self.resultados_estrategias, "resultados_mejores_estrategias_llegada_pacientes.json")   # guarda los resultados de las mejores estrategias
+        #ar("None").guardar_resultados(diccionario_estrategias_jornadas, "jornadas_mejores_estrategias.json")   # guarda las mejores estrategias en un diccionario
+        ar("None").guardar_resultados(diccionario_promedio_jornadas, "promedio_jornadas_mejores_estrategias_llegada_pacientes.json")   # guarda las mejores estrategias en un diccionario
         # ar('None').guardar_resultados(diccionario, "resultados_estrategias.json")   #### guarda los resultados de las mejores estrategias
 
     # def simular_cambio_politicas(self):
